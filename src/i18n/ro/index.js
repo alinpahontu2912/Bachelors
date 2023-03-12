@@ -7,8 +7,19 @@ export default {
   title: 'Employment in the EU series',
   language_select: 'Limba',
   start_now: 'Incepe acum!',
-  submit: 'Incarca',
-  pages: 'Pagini',
-  account: 'Contul tau',
-  not_a_valid_number: 'Numar invalid'
+  login_title:'INTRA IN CONTUl TAU',
+  signUp_title:'CREEAZA UN CONT',
+  login: 'AUTENTIFICARE',
+  create_account:'CREEAZA CONT',
+  sign_up: 'INSCRIE-TE',
+  forgot_password: 'AI UITAT PAROLA?',
+  password: 'Parola',
+  email: 'Email',
+  remember_me: 'TINE-MA MINTE',
+  new_here: 'NOU AICI?',
+  already_have_account:'AI DEJA CONT?',
+  join_description: 'Alatura-te astazi pentru a descoperi noi perspective!',
+  returning_description:'Suntem incantati ca te-ai intors!',
+  go_to_login:'SPRE AUTENTIFICARE',
+  user_job:'Statutsul tau'
 }
