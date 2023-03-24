@@ -19,7 +19,7 @@ export default {
   new_here: 'NOU AICI?',
   already_have_account:'AI DEJA CONT?',
   join_description: 'Alatura-te astazi pentru a descoperi noi perspective!',
-  returning_description:'Suntem incantati ca te-ai intors!',
+  returning_description:'NE PARE BINE CA TE-AI INTORS!',
   go_to_login:'SPRE AUTENTIFICARE',
   user_job:'Statutsul tau'
 }

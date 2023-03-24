@@ -19,7 +19,7 @@ export default {
   new_here: 'NEW HERE?',
   already_have_account:'ALREADY HAVE AN ACCOUNT?',
   join_description: 'Join today and discover brand new insights!',
-  returning_description:'Glad to have you back!',
+  returning_description:'GLAD TO HAVE YOU BACK!',
   go_to_login:'GO TO LOGIN',
   user_job:'Your Job',
 
