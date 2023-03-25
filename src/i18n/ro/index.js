@@ -21,5 +21,8 @@ export default {
   join_description: 'Alatura-te astazi pentru a descoperi noi perspective!',
   returning_description:'NE PARE BINE CA TE-AI INTORS!',
   go_to_login:'SPRE AUTENTIFICARE',
-  user_job:'Statutsul tau'
+  user_job:'Statutsul tau',
+  mandatory_field:'Camp obligatoriu',
+  weak_password:'Parola slaba',
+  missing_email:'Adresa invalida de email'
 }

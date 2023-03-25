@@ -7,8 +7,8 @@
         </q-card-section>
         <q-card-section class="rowContainer col-12">
           <q-form class="columnContainer item-medium row col-12">
-            <q-input standout="bg-secondary text-white" rounded type="email" :label="$t('email')"
-              class="q-pa-md col-10 item-medium">
+            <q-input clearable standout="bg-secondary text-white" rounded type="email" :label="$t('email')"
+              class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.email">
               <template v-slot:prepend>
                 <q-icon name="mail" />
               </template>
@@ -18,7 +18,7 @@
               </template>
             </q-input>
             <q-input standout="bg-secondary text-white" rounded :type="isPwd ? 'password' : 'text'"
-              :label="$t('password')" class="q-pa-md col-10 item-medium">
+              :label="$t('password')" class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.password">
               <template v-slot:prepend>
                 <q-icon name="lock" />
               </template>
@@ -26,8 +26,8 @@
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
               </template>
             </q-input>
-            <q-select rounded class="q-pa-md col-10 item-medium" standout="bg-teal text-white" v-model="model"
-              :options="options" :label="$t('user_job')">
+            <q-select clearable rounded class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
+              v-model:model-value="signUpData.job" :options="options" :label="$t('user_job')">
               <template v-slot:prepend>
                 <q-icon name="settings_accessibility" />
               </template>
@@ -36,37 +36,40 @@
         </q-card-section>
         <q-card-section class="rowContainer col-10">
           <q-form class="rowContainer item-medium col-12">
-            <q-checkbox class="q-pa-md col-4 item-medium" left-label v-model="isPwd" :label="$t('remember_me')"
+            <q-checkbox class="q-pa-md col-4 item-medium" left-label v-model="remainSignedin" :label="$t('remember_me')"
               checked-icon="task_alt" unchecked-icon="highlight_off" />
             <q-btn rounded outlined unelevated size="md" class="q-pa-md col-4 item-medium bg-secondary text-white"
-              :label="$t('create_account')" />
+              :label="$t('create_account')" @click="testSignUp" />
           </q-form>
         </q-card-section>
       </q-card>
     </div>
-    <div class="col-5 row q-px-md">
-      <q-card class="row bg-secondary justify-center text-white" style="height: 600px">
-        <q-card-section class="rowContainer col-12">
-          <div class="text-h4 text-bold" style="text-align: center;">{{ $t('already_have_account') }}</div>
-        </q-card-section>
-        <q-card-section class="rowContainer col-12">
-          <div class="text-h3 text-white text-center q-pa-xl">{{ $t('returning_description') }}</div>
-        </q-card-section>
-        <q-card-section class="rowContainer col-8">
-          <q-form class="row content-center justify-center align-center item-medium col-8">
-            <q-btn rounded outlined unelevated size="md" class="q-pa-md col-12 item-medium bg-white text-black"
-              :label="$t('go_to_login')" />
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </div>
+    <SmallAuthFormCard :title="'already_have_account'" :middleText="'returning_description'"
+      :buttonName="'go_to_login'" />
   </div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import useQuery from 'src/compositionFunctions/useQuery';
+import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
+const { getUserJobs } = useQuery()
+const remainSignedin = ref(true)
 const isPwd = ref(true)
-const lorem = ref('')
+const userJobs = ref([])
+const options = ref([])
+const signUpData = ref({ email: '', password: '', job: null })
 
+onMounted(async () => {
+  userJobs.value = await getUserJobs()
+  options.value = userJobs.value.map(x => { return x.job })
+})
+
+function testSignUp() {
+  signUpData.value.job = userJobs.value.find(x => x.job === signUpData.value.job).id
+  signUpData.value.date = new Date().toLocaleDateString();
+  console.log(signUpData.value)
+  signUpData.value = { email: '', password: '', job: null }
+}
 </script>
 <style>
 .columnContainer {

@@ -22,5 +22,8 @@ export default {
   returning_description:'GLAD TO HAVE YOU BACK!',
   go_to_login:'GO TO LOGIN',
   user_job:'Your Job',
+  mandatory_field:'Mandatory Field',
+  weak_password:'Weak Password',
+  missing_email:'Not a valid email address'
 
 }
