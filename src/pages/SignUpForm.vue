@@ -26,7 +26,7 @@
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
               </template>
             </q-input>
-            <q-select clearable rounded class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
+            <q-select clearable class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
               v-model:model-value="signUpData.job" :options="options" :label="$t('user_job')">
               <template v-slot:prepend>
                 <q-icon name="settings_accessibility" />
@@ -60,7 +60,10 @@ const options = ref([])
 const signUpData = ref({ email: '', password: '', job: null })
 
 onMounted(async () => {
+  const date = new Date().toLocaleDateString()
+  console.log(date)
   userJobs.value = await getUserJobs()
+  console.log(userJobs.value)
   options.value = userJobs.value.map(x => { return x.job })
 })
 

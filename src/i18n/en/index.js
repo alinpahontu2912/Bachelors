@@ -24,6 +24,7 @@ export default {
   user_job:'Your Job',
   mandatory_field:'Mandatory Field',
   weak_password:'Weak Password',
-  missing_email:'Not a valid email address'
+  missing_email:'Not a valid email address',
+
 
 }

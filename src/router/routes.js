@@ -9,6 +9,7 @@ const routes = [
       { path: 'start', component: () => import('pages/StartPage.vue') },
       { path: 'login', component: () => import('src/pages/LoginForm.vue') },
       { path: 'signup', component: () => import('src/pages/SignUpForm.vue') },
+      {path: 'test', component:() => import('src/pages/TestMyPage.vue')}
     ]
   },
   {
@@ -16,6 +17,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: '/accountsettings', component: () => import('pages/AccountSettingsPage.vue') },
     ]
   },
 

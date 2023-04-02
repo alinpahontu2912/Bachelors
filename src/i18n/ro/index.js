@@ -24,5 +24,6 @@ export default {
   user_job:'Statutsul tau',
   mandatory_field:'Camp obligatoriu',
   weak_password:'Parola slaba',
-  missing_email:'Adresa invalida de email'
+  missing_email:'Adresa invalida de email',
+
 }
