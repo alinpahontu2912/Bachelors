@@ -9,6 +9,7 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue';
+import useQuery from '../compositionFunctions/useQuery'
 import * as d3 from 'd3';
 
 export default {
@@ -16,15 +17,10 @@ export default {
 
   setup() {
     const container = ref(null);
+    const { testData } = useQuery();
 
     const state = ref({
-      data: [
-        { date: new Date('2022-01-01'), value: 10 },
-        { date: new Date('2022-02-01'), value: 20 },
-        { date: new Date('2022-03-01'), value: 15 },
-        { date: new Date('2022-04-01'), value: 30 },
-        { date: new Date('2022-05-01'), value: 25 },
-      ],
+      data: []
     });
 
     const drawGraph = () => {
@@ -35,15 +31,16 @@ export default {
       const svg = d3
         .select(container.value)
         .append('svg')
-        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height)
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-      const x = d3.scaleTime().range([0, width]);
+      const x = d3.scalePoint().range([0, 600])
       const y = d3.scaleLinear().range([height, 0]);
 
-      x.domain(d3.extent(state.value.data, (d) => d.date));
-      y.domain([0, d3.max(state.value.data, (d) => d.value)]);
+      x.domain(state.value.data.map(function (d) { return d.quarter; }));
+      y.domain([0, d3.max(state.value.data, (d) => d.val)]);
 
       const line = d3
         .line()
@@ -72,16 +69,17 @@ export default {
 
     const updateGraph = () => {
       const svg = d3.select(container.value).select('svg');
-      const x = d3.scaleTime().range([0, 600]);
+      const x = d3.scalePoint().range([0, 600])
+      // d3.scaleOrdinal().rangeRoundBands([0, 600]);
       const y = d3.scaleLinear().range([400, 0]);
 
-      x.domain(d3.extent(state.value.data, (d) => d.date));
-      y.domain([0, d3.max(state.value.data, (d) => d.value)]);
+      x.domain(state.value.data.map(function (d) { return d.quarter; }));
+      y.domain([0, d3.max(state.value.data, (d) => d.val)]);
 
       const line = d3
         .line()
-        .x((d) => x(d.date))
-        .y((d) => y(d.value));
+        .x((d) => x(d.quarter))
+        .y((d) => y(d.val));
 
       svg.select('path').datum(state.value.data).attr('d', line);
       svg.select('.x-axis').call(d3.axisBottom(x));
@@ -90,11 +88,15 @@ export default {
 
     const addDataPoint = () => {
       console.log('sdfasdf')
-      state.value.data.push({ date: new Date(), value: Math.floor(Math.random() * 100) });
+      state.value.data.push({ quarter: '2021-Q1', val: 12 });
       updateGraph()
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      const test = await testData();
+      console.log(test)
+      state.value.data.push(...test);
+      console.log(state.value.data)
       drawGraph();
     });
 
