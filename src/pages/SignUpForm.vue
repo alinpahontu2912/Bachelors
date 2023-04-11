@@ -12,13 +12,10 @@
               <template v-slot:prepend>
                 <q-icon name="mail" />
               </template>
-              <template v-slot:append>
-                <!-- @click="text = '' -->
-                <q-icon name="close" class="cursor-pointer" />
-              </template>
+
             </q-input>
             <q-input standout="bg-secondary text-white" rounded :type="isPwd ? 'password' : 'text'"
-              :label="$t('password')" class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.password">
+              :placeholder="$t('password')" class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.password">
               <template v-slot:prepend>
                 <q-icon name="lock" />
               </template>
@@ -26,6 +23,8 @@
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
               </template>
             </q-input>
+            <PasswordInput placeholder="Old Password" icon="lock_open" tooltip="Old Password" v-model="oldPassword"
+              :isVisible='true' />
             <q-select clearable class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
               v-model:model-value="signUpData.job" :options="options" :label="$t('user_job')">
               <template v-slot:prepend>
@@ -52,6 +51,7 @@
 import { ref, onMounted } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
+import PasswordInput from 'src/components/PasswordInput.vue';
 const { getUserJobs } = useQuery()
 const remainSignedin = ref(true)
 const isPwd = ref(true)

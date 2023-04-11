@@ -134,14 +134,13 @@ svg {
 }
 </style>
  -->
-<template>
+<!-- <template>
   <div class="rowContainer col-12">
     <button @click="updateData">update Data</button>
   </div>
   <div id="container"></div>
-</template>
-
-<script setup>
+</template> -->
+<!-- <script setup>
 import * as d3 from 'd3';
 import { ref, onMounted } from 'vue';
 import useQuery from 'src/compositionFunctions/useQuery';
@@ -248,5 +247,145 @@ onMounted(async () => {
   drawGraph()
   drawLine(data.value, 'red')
 })
+</script> -->
+
+<!-- <template>
+  <q-btn @click="updateData" />
+  <div ref="graph"></div>
+</template>
+
+<script>
+import * as d3 from "d3";
+
+export default {
+  data() {
+    return {
+      data: [4, 8, 15, 16, 23, 42],
+    };
+  },
+  mounted() {
+    // Create the SVG element that will contain the graph
+    const svg = d3
+      .select(this.$refs.graph)
+      .append("svg")
+      .attr("width", 400)
+      .attr("height", 200);
+
+    // Create the initial bar chart
+    svg
+      .selectAll("rect")
+      .data(this.data)
+      .enter()
+      .append("rect")
+      .attr("x", (d, i) => i * 50)
+      .attr("y", (d) => 200 - d * 10)
+      .attr("width", 40)
+      .attr("height", (d) => d * 10);
+  },
+  watch: {
+    // Watch for changes to the data property
+    data: function (newVal, oldVal) {
+      // Update the graph with a transition
+      this.updateGraph(newVal);
+    },
+  },
+  methods: {
+    updateGraph(data) {
+      // Select the existing rectangles
+      const rects = d3.select(this.$refs.graph).selectAll("rect");
+
+      // Update the data for the existing rectangles
+      rects.data(data);
+
+      // Animate the transition
+      rects
+        .transition()
+        .duration(1000)
+        .attr("y", (d) => 200 - d * 10)
+        .attr("height", (d) => d * 10);
+    },
+    updateData() {
+      this.data = [5, 6, 12, 13, 19, 35]
+    }
+  },
+};
+</script> -->
+
+<template>
+  <div id="graph"></div>
+</template>
+
+<script>
+import * as d3 from "d3";
+
+export default {
+  data() {
+    return {
+      data: [
+        { name: "Series A", color: "red", values: [{ date: "2020-01-01", value: 10 }, { date: "2020-02-01", value: 20 }, { date: "2020-03-01", value: 15 }] },
+        { name: "Series B", color: "green", values: [{ date: "2020-01-01", value: 15 }, { date: "2020-02-01", value: 10 }, { date: "2020-03-01", value: 25 }] },
+        { name: "Series C", color: "blue", values: [{ date: "2020-01-01", value: 5 }, { date: "2020-02-01", value: 25 }, { date: "2020-03-01", value: 20 }] },
+      ],
+    };
+  },
+  mounted() {
+    this.updateGraph();
+  },
+  methods: {
+    updateGraph() {
+      const svg = d3.select('#graph').select("svg");
+
+      // Define the scales for the x and y axes
+      const xScale = d3.scaleTime().range([0, 300]).domain(d3.extent(this.data[0].values, (d) => new Date(d.date)));
+      const yScale = d3.scaleLinear().range([150, 0]).domain([0, d3.max(this.data, (d) => d3.max(d.values, (v) => v.value))]);
+
+      // Create the line generator for each series
+      const lineGenerator = d3.line().x((d) => xScale(new Date(d.date))).y((d) => yScale(d.value));
+
+      // Select the group for each series and update the data for the line
+      const series = svg.selectAll(".series").data(this.data);
+      series.select(".line").datum((d) => d.values);
+
+      // Add a new line for any new series
+      const newSeries = series.enter().append("g").attr("class", "series");
+      newSeries
+        .append("path")
+        .attr("class", "line")
+        .datum((d) => d.values)
+        .style("stroke", (d) => d.color);
+
+      // Remove any old series
+      series.exit().remove();
+
+      // Transition the lines to the new data
+      svg
+        .selectAll(".line")
+        .transition()
+        .duration(1000)
+        .attr("d", lineGenerator)
+        .style("stroke", (d) => d.color);
+
+      // Update the x axis
+      svg.select(".x-axis").transition().duration(1000).call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %Y")));
+
+      // Update the y axis
+      svg.select(".y-axis").transition().duration(1000).call(d3.axisLeft(yScale));
+    },
+  },
+  watch: {
+    data: {
+      handler() {
+        this.updateGraph();
+      },
+      deep: true,
+    },
+  },
+};
 </script>
 
+<style scoped>
+.line {
+  fill: none;
+  stroke-width: 2px;
+}
+</style>

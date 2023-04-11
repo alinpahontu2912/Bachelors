@@ -3,39 +3,36 @@
     <q-card class="col-11" style="height: 600px">
       <q-card-section class="rowContainer row">
         <q-item class="row justify-center space-around col-7" q-pa-sm>
-          <div class="col-12">
-            <q-list bordered separator>
-              <q-item class="row justify-start content-center">
-                <q-item-section avatar class="col-1">
-                  <q-icon color="primary" name="email" />
-                </q-item-section>
-                <q-item-section class="col-8">Your Email</q-item-section>
-                <q-item-section q-pa-md side class="col-3">
-                  <q-item-label>johndoe@test.com</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item class="row justify-center content-center">
-                <q-item-section avatar class="col-1">
-                  <q-icon color="secondary" name="download" />
-                </q-item-section>
-                <q-item-section class="col-8">Your Email</q-item-section>
-                <q-item-section q-pa-md side class="col-3">
-                  <q-item-label>johndoe@test.com</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item class="row justify-center content-center">
-                <q-item-section avatar class="col-1">
-                  <q-icon color="secondary" name="event" />
-                </q-item-section>
-                <q-item-section class="col-8">Joined On:</q-item-section>
-                <q-item-section q-pa-md side class="col-3">
-                  <q-item-label>27/03/2023</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
+          <q-list bordered separator class="columnContainer row space-around col-12">
+            <q-item class="row justify-start content-center col-12">
+              <q-item-section avatar class="col-2">
+                <q-icon color="secondary" name="email" />
+              </q-item-section>
+              <q-item-section class="col-6">Joined On</q-item-section>
+              <q-item-section q-pa-md side class="col-4">
+                <q-item-label>johndoe@test.com</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item class="row justify-start content-center col-12">
+              <q-item-section avatar class="col-2">
+                <q-icon color="secondary" name="download" />
+              </q-item-section>
+              <q-item-section class="col-6">Your Email</q-item-section>
+              <q-item-section q-pa-md side class="col-4">
+                <q-item-label>johndoe@test.com</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item class="row justify-start content-center col-12">
+              <q-item-section avatar class="col-2">
+                <q-icon color="secondary" name="event" />
+              </q-item-section>
+              <q-item-section class="col-6"> Download?</q-item-section>
+              <q-item-section q-pa-md side class="col-4">
+                <q-item-label>27/03/2023</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-item>
-        <!-- <q-separator vertical color="black" /> -->
         <q-item class="row bg-secondary justify-center content-center text-white col-5" q-pa-sm>
           <div class="col-12">
             <q-list>
@@ -52,13 +49,63 @@
           </div>
         </q-item>
       </q-card-section>
+      <q-card-section class="columnContainer row ">
+        <q-item class="col-12" q-pa-sm>
+          <q-list bordered separator class="row col-12 bg-secondary text-white">
+            <q-item style="height: 80px;" class="col-12">
+              <q-item-section class="space-around">
+                <h5>Want to change your password?</h5>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn>
+                  Get a new password
+                </q-btn>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-item>
+      </q-card-section>
+      <q-card-section class="columnContainer row">
+        <q-item class="col-12" q-pa-sm>
+          <q-list bordered separator class="row col-12">
+            <q-item style="height: 80px;" class="col-12">
+              <q-item-section class="space-around">
+                <h5>Want to change your password?</h5>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn>
+                  Get a new password
+                </q-btn>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-item>
+      </q-card-section>
+      <q-card-section class="columnContainer row">
+        <q-item class="col-12" q-pa-sm>
+          <q-list bordered separator class="row col-12 bg-secondary text-white">
+            <q-item style="height: 80px;" class="col-12">
+              <q-item-section class="space-around">
+                <h5>Want to change your password?</h5>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn>
+                  Get a new password
+                </q-btn>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-item>
+      </q-card-section>
     </q-card>
+    <NewPassworDialog></NewPassworDialog>
   </div>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
+import NewPassworDialog from 'src/components/NewPassworDialog.vue';
 </script>
 <style>
 .columnContainer {
@@ -80,10 +127,12 @@ import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 
 .item-small {
   flex-grow: 2;
+  flex-shrink: 0;
 }
 
 .item-medium {
   flex-grow: 3;
+  flex-shrink: 0;
 
 }
 </style>

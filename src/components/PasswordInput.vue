@@ -1,0 +1,27 @@
+<template>
+  <q-input :type="isPwd ? 'password' : 'text'" color="teal" rounded outlined v-model="password" :placeholder="placeholder"
+    class="item-medium q-pa-md col-10">
+    <template v-slot:prepend>
+      <q-icon :name="icon" />
+    </template>
+    <template v-slot:append v-if="!isVisible">
+      <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+    </template>
+    <q-tooltip anchor="top middle" self="bottom middle">
+      {{ tooltip }}
+    </q-tooltip>
+  </q-input>
+</template>
+<script setup>
+import { ref, defineProps } from 'vue'
+const isPwd = ref(!props.isVisible)
+const password = ref('')
+
+const props = defineProps({
+  placeholder: String,
+  icon: String,
+  tooltip: String,
+  isVisible: Boolean
+})
+
+</script>
