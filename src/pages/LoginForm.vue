@@ -7,24 +7,10 @@
         </q-card-section>
         <q-card-section class="rowContainer col-12">
           <q-form class="columnContainer item-medium row col-12">
-            <q-input standout="bg-secondary text-white" rounded type="email" :label="$t('email')"
-              class="q-pa-md col-10 item-medium" v-model:model-value="loginData.email">
-              <template v-slot:prepend>
-                <q-icon name="mail" />
-              </template>
-              <template v-slot:append>
-                <q-icon name="close" class="cursor-pointer" @click="loginData.email = ''" />
-              </template>
-            </q-input>
-            <q-input standout="bg-secondary text-white" rounded :type="isPwd ? 'password' : 'text'"
-              :label="$t('password')" class="q-pa-md col-10 item-medium" v-model:model-value="loginData.password">
-              <template v-slot:prepend>
-                <q-icon name="lock" />
-              </template>
-              <template v-slot:append>
-                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-              </template>
-            </q-input>
+            <PasswordInput :placeholder='$t("email")' icon="mail" :tooltip='$t("email")' v-model="loginData.email"
+              :isVisible='true' :standout="'bg-secondary text-white'" :outlined=false />
+            <PasswordInput :placeholder='$t("password")' icon="lock" :tooltip='$t("password")'
+              v-model="loginData.password" :isVisible='false' :standout="'bg-secondary text-white'" :outlined=false />
           </q-form>
         </q-card-section>
         <q-card-section class="rowContainer col-8">
@@ -44,6 +30,7 @@
 </template>
 <script setup>
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
+import PasswordInput from 'src/components/PasswordInput.vue';
 import { axiosInstance } from '../boot/axios'
 import { ref } from 'vue';
 const isPwd = ref(true)

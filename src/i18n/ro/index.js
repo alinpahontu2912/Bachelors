@@ -15,7 +15,7 @@ export default {
   forgot_password: 'AI UITAT PAROLA?',
   password: 'Parola',
   email: 'Email',
-  remember_me: 'TINE-MA MINTE',
+  remember_me: 'RAMAI CONECTAT',
   new_here: 'NOU AICI?',
   already_have_account:'AI DEJA CONT?',
   join_description: 'Alatura-te astazi pentru a descoperi noi perspective!',

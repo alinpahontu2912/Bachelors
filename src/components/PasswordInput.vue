@@ -1,6 +1,6 @@
 <template>
-  <q-input :type="isPwd ? 'password' : 'text'" color="teal" rounded outlined v-model="password" :placeholder="placeholder"
-    class="item-medium q-pa-md col-10">
+  <q-input :type="isPwd ? 'password' : 'text'" rounded :outlined="outlined" v-model="password" :placeholder="placeholder"
+    class="item-medium q-pa-md col-10" :autocomplete="false" :standout="standout" color="teal">
     <template v-slot:prepend>
       <q-icon :name="icon" />
     </template>
@@ -21,7 +21,9 @@ const props = defineProps({
   placeholder: String,
   icon: String,
   tooltip: String,
-  isVisible: Boolean
+  standout: String,
+  isVisible: Boolean,
+  outlined: { type: Boolean, default: true }
 })
 
 </script>

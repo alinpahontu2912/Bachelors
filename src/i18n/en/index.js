@@ -25,6 +25,18 @@ export default {
   mandatory_field:'Mandatory Field',
   weak_password:'Weak Password',
   missing_email:'Not a valid email address',
-
-
+  change_password:'Change Password',
+  want_new_password:'Want to change your password?',
+  new_password:'Get a new password',
+  feedback: 'Got something to tell us?',
+  leave_comment: 'Leave us a comment',
+  require_download_permissions: 'Do you require download permission?',
+  make_request:'Make a request here',
+  request_download_permission: 'Request Download Permissions',
+  send_request: 'Send Request',
+  what_you_think: 'Tell us what you think',
+  send_comment: 'Send Comment',
+  joined_on:'Joined On',
+  your_email: 'Your Email',
+  download_permission: ' Download?'
 }

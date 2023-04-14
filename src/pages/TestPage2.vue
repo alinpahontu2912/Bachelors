@@ -25,6 +25,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import * as d3 from 'd3'
+import { computed } from 'vue';
 
 const isLoading = ref(false)
 const initialData = ref([
@@ -52,6 +53,10 @@ const circles = ref([])
 const xScale = ref(d3.scaleLinear().range([0, width - margin]).domain([0, 4]).nice())
 const yScale = ref(d3.scaleLinear().range([height - margin, 0]).domain([3, 10]).nice())
 const line = ref(d3.line().x((d) => xScale.value(d.x)).y((d) => yScale.value(d.y)))
+
+const lineGenerator = computed(() => {
+  return d3.line().x((d) => xScale.value(d.x)).y((d) => yScale.value(d.y))
+})
 
 function drawGraph() {
   const svg = d3.select('#graph')
@@ -95,8 +100,8 @@ onMounted(() => {
 })
 
 
+
 function updateData() {
-  isLoading.value = true
   console.log('click')
   initialData.value = [
     { x: 0, y: 3, },
@@ -107,9 +112,11 @@ function updateData() {
   ]
   lines.value = [{ path: line.value(initialData.value), color: 'blue' }]
   console.log(initialData)
-  setTimeout(function () {
-    isLoading.value = false
-  }, 2000);
 }
 
 </script>
+<style>
+path {
+  transition: all 500 ms ease;
+}
+</style>

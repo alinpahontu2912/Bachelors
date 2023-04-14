@@ -8,7 +8,7 @@
               <q-item-section avatar class="col-2">
                 <q-icon color="secondary" name="email" />
               </q-item-section>
-              <q-item-section class="col-6">Joined On</q-item-section>
+              <q-item-section class="col-6">{{ $t('joined_on') }}</q-item-section>
               <q-item-section q-pa-md side class="col-4">
                 <q-item-label>johndoe@test.com</q-item-label>
               </q-item-section>
@@ -17,7 +17,7 @@
               <q-item-section avatar class="col-2">
                 <q-icon color="secondary" name="download" />
               </q-item-section>
-              <q-item-section class="col-6">Your Email</q-item-section>
+              <q-item-section class="col-6">{{ $t('your_email') }}</q-item-section>
               <q-item-section q-pa-md side class="col-4">
                 <q-item-label>johndoe@test.com</q-item-label>
               </q-item-section>
@@ -26,7 +26,7 @@
               <q-item-section avatar class="col-2">
                 <q-icon color="secondary" name="event" />
               </q-item-section>
-              <q-item-section class="col-6"> Download?</q-item-section>
+              <q-item-section class="col-6">{{ $t('download_permission') }}}</q-item-section>
               <q-item-section q-pa-md side class="col-4">
                 <q-item-label>27/03/2023</q-item-label>
               </q-item-section>
@@ -54,11 +54,11 @@
           <q-list bordered separator class="row col-12 bg-secondary text-white">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>Want to change your password?</h5>
+                <h5>{{ $t('require_download_permissions') }}</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn>
-                  Get a new password
+                <q-btn color="white text-black" @click="openRequestDialog">
+                  {{ $t('make_request') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -70,11 +70,11 @@
           <q-list bordered separator class="row col-12">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>Want to change your password?</h5>
+                <h5>{{ $t('feedback') }}</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn>
-                  Get a new password
+                <q-btn color="teal text-white" @click="openFeedbackDialog">
+                  {{ $t('leave_comment') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -86,11 +86,11 @@
           <q-list bordered separator class="row col-12 bg-secondary text-white">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>Want to change your password?</h5>
+                <h5>{{ $t('want_new_password') }}</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn>
-                  Get a new password
+                <q-btn color="white text-black" @click="openNewPasswordForm">
+                  {{ $t('new_password') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -99,13 +99,32 @@
       </q-card-section>
     </q-card>
     <NewPassworDialog></NewPassworDialog>
+    <TextAreaDialog :title='$t("request_download_permission")' :button-text='$t("send_request")'
+      :type='EVENT_KEYS.DATA_DOWNLOAD_REQUEST'></TextAreaDialog>
+    <TextAreaDialog :title='$t("what_you_think")' :button-text='$t("send_comment")' :type='EVENT_KEYS.LEAVE_FEEDBACK'>
+    </TextAreaDialog>
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
-import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import NewPassworDialog from 'src/components/NewPassworDialog.vue';
+import TextAreaDialog from 'src/components/TextAreaDialog.vue';
+import { EVENT_KEYS } from 'src/utils/eventKeys';
+const bus = inject('bus')
+
+function openRequestDialog() {
+  bus.emit(EVENT_KEYS.DATA_DOWNLOAD_REQUEST)
+}
+
+function openFeedbackDialog() {
+  bus.emit(EVENT_KEYS.LEAVE_FEEDBACK)
+}
+
+function openNewPasswordForm() {
+  bus.emit(EVENT_KEYS.PASSWORD_CHANGE)
+}
+
 </script>
 <style>
 .columnContainer {

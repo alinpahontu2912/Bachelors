@@ -7,24 +7,10 @@
         </q-card-section>
         <q-card-section class="rowContainer col-12">
           <q-form class="columnContainer item-medium row col-12">
-            <q-input clearable standout="bg-secondary text-white" rounded type="email" :label="$t('email')"
-              class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.email">
-              <template v-slot:prepend>
-                <q-icon name="mail" />
-              </template>
-
-            </q-input>
-            <q-input standout="bg-secondary text-white" rounded :type="isPwd ? 'password' : 'text'"
-              :placeholder="$t('password')" class="q-pa-md col-10 item-medium" v-model:model-value="signUpData.password">
-              <template v-slot:prepend>
-                <q-icon name="lock" />
-              </template>
-              <template v-slot:append>
-                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-              </template>
-            </q-input>
-            <PasswordInput placeholder="Old Password" icon="lock_open" tooltip="Old Password" v-model="oldPassword"
-              :isVisible='true' />
+            <PasswordInput :placeholder='$t("email")' icon="mail" :tooltip='$t("email")' v-model="signUpData.email"
+              :isVisible='true' :standout="'bg-secondary text-white'" :outlined=false />
+            <PasswordInput :placeholder='$t("password")' icon="lock" :tooltip='$t("password")'
+              v-model="signUpData.password" :isVisible='false' :standout="'bg-secondary text-white'" :outlined=false />
             <q-select clearable class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
               v-model:model-value="signUpData.job" :options="options" :label="$t('user_job')">
               <template v-slot:prepend>
