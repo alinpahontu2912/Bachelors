@@ -36,7 +36,7 @@ import useQuery from 'src/compositionFunctions/useQuery';
 import { userStore } from 'src/stores/userStore';
 
 const { getUserId } = userStore()
-const { sendFeedback } = useQuery()
+const { sendFeedback, createRequest } = useQuery()
 
 const props = defineProps({
   title: String,
@@ -68,8 +68,13 @@ function test() {
 async function sendQuery() {
   if (props.type === EVENT_KEYS.LEAVE_FEEDBACK) {
     const data = await sendFeedback(getUserId(), text.value)
+    result.value = data ? 'SUCCESS' : 'SOMWTHING WENT WRONG'
+    alert.value = true
+  }
+  if (props.type === EVENT_KEYS.DATA_DOWNLOAD_REQUEST) {
+    const data = await createRequest(getUserId(), text.value)
     console.log(data)
-    result.value = 'SUCCESS'
+    result.value = data ? 'SUCCESS' : 'SOMWTHING WENT WRONG'
     alert.value = true
   }
 }

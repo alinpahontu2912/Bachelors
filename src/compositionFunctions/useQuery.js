@@ -2,6 +2,7 @@ import { EurostatData } from 'src/models/EurostatData'
 import { axiosInstance } from '../boot/axios'
 import { UserJob } from 'src/models/UserJob'
 import { User } from 'src/models/User'
+import { Requests } from 'src/models/Requests'
 import useLocalStorage from './useLocalStorage'
 import { Feedback } from 'src/models/Feedback'
 const { retrieveUserData } = useLocalStorage()
@@ -98,6 +99,16 @@ export default function() {
     }
   }
 
+  async function createRequest(userId, value) {
+    const newRequest = new Requests(userId, new Date(), value)
+    try {
+      const response = await axiosInstance.post(endpoint + '/users/requests', newRequest)
+      return response.data
+    } catch (error) {
+      return null
+    }
+  }
+
   async function getUserJobs() {
     const response = await axiosInstance.get(createUserJobQuery())
     const data = response.data
@@ -133,6 +144,7 @@ export default function() {
     createUser,
     refreshUserToken,
     changePasswordRequest,
-    sendFeedback
+    sendFeedback,
+    createRequest
   }
 }
