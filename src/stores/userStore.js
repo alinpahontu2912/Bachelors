@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import useLocalStorage from 'src/compositionFunctions/useLocalStorage'
-import useQuery from 'src/compositionFunctions/useHttpQuery'
-import { useJwt } from '@vueuse/integrations/useJwt'
+import useQuery from 'src/compositionFunctions/useQuery'
+// import { useJwt } from '@vueuse/integrations/useJwt'
 const { saveUserData, retrieveUserData } = useLocalStorage()
-// const { addNewUser, verifyUserCredentials } = useQuery()
+const { addNewUser, verifyUserCredentials } = useQuery()
 
 export const userStore = defineStore('user', () => {
   const userToken = ref(retrieveUserData())
@@ -38,11 +38,19 @@ export const userStore = defineStore('user', () => {
     saveUserData(userToken.value)
   }
 
-  function decodeUserJWT() {
-     const { header, payload } = useJwt(userToken.value)
-    console.log(header, payload)
-    return payload
+  // function decodeUserJWT() {
+  //    const { header, payload } = useJwt(userToken.value)
+  //   console.log(header, payload)
+  //   return payload
+  // }
+
+  function isUserAuth() {
+    return false;
   }
 
-  return { userToken, signUpRequest, loginRequest, logout, checkUserRemainSignedIn, getUserRole }
+  function isUserAdmin() {
+    return false;
+  }
+
+  return { userToken, signUpRequest, loginRequest, logout, checkUserRemainSignedIn, isUserAuth, isUserAdmin }
 })

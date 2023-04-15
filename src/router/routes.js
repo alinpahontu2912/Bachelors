@@ -5,21 +5,21 @@ const routes = [
     path: '/',
     component: () => import('src/layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('src/pages/TestPage.vue') },
-      { path: 'start', component: () => import('pages/StartPage.vue') },
-      { path: 'login', component: () => import('src/pages/LoginForm.vue') },
-      { path: 'signup', component: () => import('src/pages/SignUpForm.vue') },
-      {path: 'test', component:() => import('src/pages/TestMyPage.vue')},
-      {path: 'test2', component:() => import('src/pages/TestPage2.vue')},
-      {path: 'announcements', component:() => import('src/pages/AnnouncementsPage.vue')}
+      // { path: '', component: () => import('src/pages/TestPage.vue') },
+      { path: 'start', component: () => import('pages/StartPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
+      { path: 'login', component: () => import('src/pages/LoginForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
+      { path: 'signup', component: () => import('src/pages/SignUpForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
+      { path: 'test', component:() => import('src/pages/TestMyPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
+      { path: 'test2', component:() => import('src/pages/TestPage2.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
+      { path: 'announcements', component:() => import('src/pages/AnnouncementsPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} }
     ]
   },
   {
     path: '/home/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: '/accountsettings', component: () => import('pages/AccountSettingsPage.vue') },
+      { path: '', component: () => import('pages/IndexPage.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
+      { path: '/accountsettings', component: () => import('pages/AccountSettingsPage.vue'), meta: {requiresAuth: true, requiresAdmin: false}  },
     ]
   },
 
