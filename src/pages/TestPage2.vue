@@ -54,8 +54,8 @@ const xScale = ref(d3.scaleLinear().range([0, width - margin]).domain([0, 4]).ni
 const yScale = ref(d3.scaleLinear().range([height - margin, 0]).domain([3, 10]).nice())
 const line = ref(d3.line().x((d) => xScale.value(d.x)).y((d) => yScale.value(d.y)))
 
-const lineGenerator = computed(() => {
-  return d3.line().x((d) => xScale.value(d.x)).y((d) => yScale.value(d.y))
+const d = computed(() => {
+  return line.value
 })
 
 function drawGraph() {
@@ -107,16 +107,21 @@ function updateData() {
     { x: 0, y: 3, },
     { x: 1, y: 5 },
     { x: 2, y: 7 },
-    { x: 3, y: 8 },
-    { x: 4, y: 9 }
+    { x: 4, y: 12 }
   ]
+  const xScale = ref(d3.scaleLinear().range([0, width - margin]).domain(d3.extent([0, d3.max(initialData.value.x)])).nice())
+  const yScale = ref(d3.scaleLinear().range([height - margin, 0]).domain([0, d3.max(initialData.value, (d) => d3.max(d.y))]).nice())
   lines.value = [{ path: line.value(initialData.value), color: 'blue' }]
   console.log(initialData)
 }
 
 </script>
-<style>
+<style scoped lang="scss">
 path {
-  transition: all 500 ms ease;
+  transition: all 5000ms ease;
+}
+
+circle {
+  transition: 5000ms ease;
 }
 </style>
