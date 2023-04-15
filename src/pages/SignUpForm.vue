@@ -24,40 +24,54 @@
             <q-checkbox class="q-pa-md col-4 item-medium" left-label v-model="remainSignedin" :label="$t('remember_me')"
               checked-icon="task_alt" unchecked-icon="highlight_off" />
             <q-btn rounded outlined unelevated size="md" class="q-pa-md col-4 item-medium bg-secondary text-white"
-              :label="$t('create_account')" @click="testSignUp" />
+              :label="$t('create_account')" @click="signUp" />
           </q-form>
         </q-card-section>
       </q-card>
     </div>
-    <SmallAuthFormCard :title="'already_have_account'" :middleText="'returning_description'"
-      :buttonName="'go_to_login'" />
+    <SmallAuthFormCard :title="'already_have_account'" :middleText="'returning_description'" :buttonName="'go_to_login'"
+      :function="routeToLogin" />
   </div>
+  <ErrorDialog />
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
+import { userStore } from 'src/stores/userStore';
+import { useRouter } from 'vue-router';
 import useQuery from 'src/compositionFunctions/useQuery';
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import PasswordInput from 'src/components/PasswordInput.vue';
+import { EVENT_KEYS } from 'src/utils/eventKeys';
+import ErrorDialog from 'src/components/ErrorDialog.vue';
+
+const router = useRouter()
 const { getUserJobs } = useQuery()
+const bus = inject('bus')
 const remainSignedin = ref(true)
-const isPwd = ref(true)
 const userJobs = ref([])
 const options = ref([])
 const signUpData = ref({ email: '', password: '', job: null })
+const { signUpRequest } = userStore()
 
 onMounted(async () => {
-  const date = new Date().toLocaleDateString()
-  console.log(date)
   userJobs.value = await getUserJobs()
-  console.log(userJobs.value)
   options.value = userJobs.value.map(x => { return x.job })
 })
 
-function testSignUp() {
+async function signUp() {
   signUpData.value.job = userJobs.value.find(x => x.job === signUpData.value.job).id
-  signUpData.value.date = new Date().toLocaleDateString();
   console.log(signUpData.value)
+  const successfull = await signUpRequest(signUpData.value.email, signUpData.value.password, signUpData.value.job)
+  if (successfull) {
+    router.push('/start')
+  } else {
+    bus.emit(EVENT_KEYS.ERROR)
+  }
   signUpData.value = { email: '', password: '', job: null }
+}
+
+function routeToLogin() {
+  router.push('/login')
 }
 </script>
 <style>

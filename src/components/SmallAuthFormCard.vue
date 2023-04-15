@@ -10,7 +10,7 @@
       <q-card-section class="rowContainer col-8">
         <q-form class="row content-center justify-center align-center item-medium col-8">
           <q-btn rounded outlined unelevated size="md" class="q-pa-md col-12 item-medium bg-white text-black"
-            :label="$t(buttonName)" />
+            :label="$t(buttonName)" @click=props.function />
         </q-form>
       </q-card-section>
     </q-card>
@@ -20,6 +20,7 @@
 const props = defineProps({
   title: String,
   middleText: String,
-  buttonName: String
+  buttonName: String,
+  function: Object
 })
 </script>

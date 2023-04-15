@@ -1,17 +1,103 @@
 import { EurostatData } from 'src/models/EurostatData'
 import { axiosInstance } from '../boot/axios'
 import { UserJob } from 'src/models/UserJob'
+import { User } from 'src/models/User'
+import useLocalStorage from './useLocalStorage'
+import { Feedback } from 'src/models/Feedback'
+const { retrieveUserData } = useLocalStorage()
 const endpoint = 'http://localhost:7051/api'
 
+axiosInstance.interceptors.request.use(function (config) {
+  const userToken = retrieveUserData()
+  if (userToken) {
+    config.headers.Authorization = 'Bearer ' + userToken
+  }
+  return config
+})
+
 function createUserJobQuery() {
-  const target = new URL(' http://localhost:7051/api/userjobs')
+  const target = new URL(endpoint + '/userjobs')
   const params = new URLSearchParams()
   target.search = params.toString()
   return target.href
 }
 
+function createUserCredentialsQuery(email, password) {
+  const target = new URL(endpoint + '/users')
+  const params = new URLSearchParams()
+  params.set('user', email)
+  params.set('pswd', password)
+  target.search = params.toString()
+  return target.href
+}
+
+function createPasswordChangeQuery(userId, oldPassword, newPassword) {
+  const target = new URL(endpoint + '/users/changePassword')
+  const params = new URLSearchParams()
+  params.set('user', userId)
+  params.set('oldpsswd', oldPassword)
+  params.set('newpsswd', newPassword)
+  target.search = params.toString()
+  return target.href
+}
+
+
 
 export default function() {
+
+  async function createUser(email, password, job) {
+    const newUser = new User(email, password, job, new Date())
+    try {
+      const response = await axiosInstance.post(endpoint + '/users/add/', newUser)
+      return response.data
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function attemptLogIn(email, password) {
+    try {
+      const response = await axiosInstance.get(createUserCredentialsQuery(email, password))
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function refreshUserToken(){
+    try {
+      const response = await axiosInstance.get(endpoint + '/refresh')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function changePasswordRequest(userId, oldPassword, newPassword){
+    try {
+      const response = await axiosInstance.put(createPasswordChangeQuery(userId, oldPassword, newPassword))
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function sendFeedback(userId, value) {
+    const newFeedback = new Feedback(userId, new Date(), value)
+    try {
+      const response = await axiosInstance.post(endpoint + '/users/feedback', newFeedback)
+      return response.data
+    } catch (error) {
+      return null
+    }
+  }
+
   async function getUserJobs() {
     const response = await axiosInstance.get(createUserJobQuery())
     const data = response.data
@@ -42,6 +128,11 @@ export default function() {
 
   return {
     getUserJobs,
-    testData
+    testData,
+    attemptLogIn,
+    createUser,
+    refreshUserToken,
+    changePasswordRequest,
+    sendFeedback
   }
 }

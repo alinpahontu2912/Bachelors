@@ -14,7 +14,7 @@ const router = useRouter()
 
 function testRouteLogin() {
   console.log(router)
-  router.push('/announcements')
+  router.push('/login')
 }
 </script>
 
