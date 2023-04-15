@@ -90,6 +90,5 @@ onMounted(() => {
 
 .item-medium {
   flex-grow: 3;
-
 }
 </style>
