@@ -42,7 +42,14 @@ function createPasswordChangeQuery(userId, oldPassword, newPassword) {
   return target.href
 }
 
-
+function createGetRequestQuery(sort, status) {
+    const target = new URL(endpoint + '/allrequests')
+  const params = new URLSearchParams()
+  params.set('status', status)
+  params.set('sort', sort)
+  target.search = params.toString()
+  return target.href
+}
 
 export default function() {
 
@@ -109,6 +116,15 @@ export default function() {
     }
   }
 
+  async function getAllRequests(sort, status) {
+    try {
+      const response = await axiosInstance.get(createGetRequestQuery(sort, status))
+      return response.data
+    } catch (error) {
+      return null
+    }
+  }
+
   async function getUserJobs() {
     const response = await axiosInstance.get(createUserJobQuery())
     const data = response.data
@@ -145,6 +161,7 @@ export default function() {
     refreshUserToken,
     changePasswordRequest,
     sendFeedback,
-    createRequest
+    createRequest,
+    getAllRequests
   }
 }

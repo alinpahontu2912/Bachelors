@@ -143,32 +143,3 @@ onMounted(() => {
 })
 
 </script>
-<style>
-.columnContainer {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.rowContainer {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-}
-
-.item-small {
-  flex-grow: 2;
-  flex-shrink: 0;
-}
-
-.item-medium {
-  flex-grow: 3;
-  flex-shrink: 0;
-
-}
-</style>
