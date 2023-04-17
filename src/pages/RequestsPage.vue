@@ -15,13 +15,11 @@
         </q-btn>
       </div>
     </div>
-    <q-infinite-scroll @load="onLoad" :offset="250">
+    <q-infinite-scroll @load="onLoad" :offset="250" ref="scroll">
       <div class="row fit ">
-        <!-- <AnnouncementTile v-for="(item, index) in items" :key="index" :announcement="item" /> -->
         <RequestTile v-for="(item, index) in items" :key="index" :request="item" />
-
       </div>
-      <template v-slot:loading>
+      <template v-slot:loading v-if="awaitData">
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="teal" size="80px" />
         </div>
@@ -41,6 +39,8 @@ const statusOptions = ref(['ALL', 'ACCEPTED', 'REJECTED', 'PROCESSING'])
 const statusOption = ref('ALL')
 const items = ref([])
 const loading = ref(false)
+const scroll = ref(null)
+const awaitData = ref(false)
 
 function getStatusId() {
   switch (statusOption.value) {
@@ -52,32 +52,46 @@ function getStatusId() {
       return 2
     case 'REJECTED':
       return 3
-
   }
 }
 
 async function reloadData() {
-  loading.value = true;
-  items.value.length = 0;
-  const data = await getAllRequests(dateOption.value, getStatusId(statusOption.value))
-  data.forEach(element => {
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-
-  });
-  loading.value = false;
+  items.value.length = 0
+  scroll.value.reset()
+  scroll.value.trigger()
 }
 
-onMounted(async () => {
-  const data = await getAllRequests(dateOption.value, getStatusId(statusOption.value))
-  data.forEach(element => {
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-    items.value.push({ id: element.id, issuer: element.issuer, requestTime: new Date(element.requestTime).toDateString(), motivation: element.motivation, status: element.status, email: element.issuerNavigation.email })
-
-  });
-})
+async function onLoad(index, done) {
+  const newEntries = await getAllRequests(index, dateOption.value, getStatusId(statusOption.value), done, items.value)
+  awaitData.value = newEntries > 0 ? true : false
+}
 
 
 </script>
+<style>
+.columnContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.rowContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.item-small {
+  flex-grow: 1;
+}
+
+.item-medium {
+  flex-grow: 3;
+
+}
+</style>

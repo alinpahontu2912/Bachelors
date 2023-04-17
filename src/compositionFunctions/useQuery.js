@@ -5,6 +5,7 @@ import { User } from 'src/models/User'
 import { Requests } from 'src/models/Requests'
 import useLocalStorage from './useLocalStorage'
 import { Feedback } from 'src/models/Feedback'
+import { Announcement } from 'src/models/Announcement'
 const { retrieveUserData } = useLocalStorage()
 const endpoint = 'http://localhost:7051/api'
 
@@ -42,11 +43,22 @@ function createPasswordChangeQuery(userId, oldPassword, newPassword) {
   return target.href
 }
 
-function createGetRequestQuery(sort, status) {
+function createGetRequestQuery(sort, status, page) {
     const target = new URL(endpoint + '/allrequests')
   const params = new URLSearchParams()
   params.set('status', status)
   params.set('sort', sort)
+  params.set('page', page)
+  target.search = params.toString()
+  return target.href
+}
+
+function createGetAnnouncementQuery(sort, type, page) {
+  const target = new URL(endpoint + '/announcements')
+  const params = new URLSearchParams()
+  params.set('type', type)
+  params.set('sort', sort)
+  params.set('page', page)
   target.search = params.toString()
   return target.href
 }
@@ -116,13 +128,23 @@ export default function() {
     }
   }
 
-  async function getAllRequests(sort, status) {
-    try {
-      const response = await axiosInstance.get(createGetRequestQuery(sort, status))
-      return response.data
-    } catch (error) {
-      return null
+  async function getAllRequests(index, sort, type, done, container) {
+    const response = await axiosInstance.get(createGetRequestQuery(sort, type, index))
+    const data = response.data
+    for (let i = 0; i < data.length; i++) {
+      container.push({ id: data[i].id, issuer: data[i].issuer, requestTime: new Date(data[i].requestTime).toDateString(), motivation: data[i].motivation, status: data[i].status, email: data[i].issuerNavigation.email })
     }
+    done()
+    return data.length
+  }
+   async function getAllAnnouncements(index, sort, status, done, container) {
+    const response = await axiosInstance.get(createGetAnnouncementQuery(sort, status, index))
+    const data = response.data
+    for (let i = 0; i < data.length; i++) {
+      container.push({ id: data[i].id, type: data[i].typeNavigation.type, creationTime: new Date(data[i].creationTime).toDateString(), value: data[i].value, title: data[i].title })
+    }
+    done()
+    return data.length
   }
 
   async function getUserJobs() {
@@ -162,6 +184,7 @@ export default function() {
     changePasswordRequest,
     sendFeedback,
     createRequest,
-    getAllRequests
+    getAllRequests,
+    getAllAnnouncements
   }
 }

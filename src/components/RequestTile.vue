@@ -16,7 +16,7 @@
           class="columnContainer col-8 bg-white row item-medium content-center  align-center justify-around">
           <div class="row col-12 q-pa-md text-bold text-italic">Motivation</div>
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
-        flex-direction: column; max-height: 200px;">
+          flex-direction: column; max-height: 200px;">
             <div class="q-pa-xs">
               {{ request.motivation }}
             </div>
@@ -44,9 +44,6 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, inject } from 'vue'
-import { Requests } from 'src/models/Requests';
-import { EVENT_KEYS } from 'src/utils/eventKeys';
 const props = defineProps({
   request: Object
 })
