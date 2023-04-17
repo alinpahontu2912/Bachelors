@@ -15,56 +15,54 @@
         </q-card-section>
         <q-card-section class="rowContainer col-8">
           <q-btn rounded outlined unelevated size="md" class="q-pa-md item-medium bg-secondary text-white"
-            :label="$t('login')" @click="testLogIn" />
+            :label="$t('login')" @click="logIn" />
         </q-card-section>
         <q-card-section class="rowContainer col-8">
           <q-btn rounded outlined unelevated size="md" class="q-pa-md item-medium bg-secondary text-white"
             :label="$t('forgot_password')" />
-          <q-checkbox class="q-pa-md item-medium" left-label v-model="isPwd" :label="$t('remember_me')"
+          <q-checkbox class="q-pa-md item-medium" left-label v-model="saveCredentials" :label="$t('remember_me')"
             checked-icon="task_alt" unchecked-icon="highlight_off" />
         </q-card-section>
       </q-card>
     </div>
-    <SmallAuthFormCard :title="'new_here'" :middleText="'join_description'" :buttonName="'sign_up'" />
+    <SmallAuthFormCard :title="'new_here'" :middleText="'join_description'" :buttonName="'sign_up'"
+      :function="routeToSignUp" />
   </div>
+  <ErrorDialog />
 </template>
 <script setup>
+import { onMounted, ref, inject } from 'vue';
+import { userStore } from 'src/stores/userStore';
+import { useRouter } from 'vue-router';
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import PasswordInput from 'src/components/PasswordInput.vue';
-import { axiosInstance } from '../boot/axios'
-import { ref } from 'vue';
-const isPwd = ref(true)
+import ErrorDialog from 'src/components/ErrorDialog.vue';
+
+const { loginRequest, checkUserAlreadySignedIn, isUserAdmin } = userStore()
+const router = useRouter()
+const saveCredentials = ref(true)
 const loginData = ref({ email: '', password: '' })
+const bus = inject('bus')
 
-function testLogIn() {
-  console.log(loginData.value)
+async function logIn() {
+  const data = await loginRequest(loginData.value.email, loginData.value.password, saveCredentials.value)
   loginData.value = { email: '', password: '' }
+  if (data) {
+    router.push('/start')
+  } else {
+    bus.emit(EVENT_KEYS.ERROR)
+  }
 }
+
+function routeToSignUp() {
+  router.push('/signup')
+}
+
+onMounted(() => {
+  const token = checkUserAlreadySignedIn()
+  if (token) {
+    router.push('/start')
+  }
+})
+
 </script>
-<style>
-.columnContainer {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.rowContainer {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-}
-
-.item-small {
-  flex-grow: 1;
-}
-
-.item-medium {
-  flex-grow: 3;
-
-}
-</style>

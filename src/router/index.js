@@ -28,7 +28,7 @@ export default route(function ({ /*store , ssrContext */}) {
 
   if (to.meta.requiresAuth && !store.isUserAuth()) {
     next('login');
-  } else if ( to.meta.requiresAdmin && !store.isUserAdmin ) {
+  } else if ( to.meta.requiresAdmin && !store.isUserAdmin() ) {
     return false;
   }
   else {

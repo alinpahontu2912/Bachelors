@@ -3,5 +3,7 @@ export const EVENT_KEYS = {
   DATA_DOWNLOAD_REQUEST: 'dataDownloadRequest',
   LEAVE_FEEDBACK: 'leaveFeedback',
   PASSWORD_CHANGE: 'changePassword',
-  OPEN_ANNOUNCEMENT: 'openAnnouncement'
+  OPEN_ANNOUNCEMENT: 'openAnnouncement',
+  ERROR: 'actionError',
+  SUCCESS: 'success'
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="columnContainer row col-6 q-pa-md">
-    <q-card flat bordered class=" q-pa-md col-12">
+    <q-card flat bordered class="row  q-pa-md col-12">
       <q-card-section class="row justify-center content-center align-center col-12">
         <div class="text-h5 text-bold text-italic text-uppercase col-9 q-pa-md row justify-start">
           <p>{{ announcement.title }}</p>
@@ -29,7 +29,7 @@
   <AnnouncementCard :announcement="announcement" />
 </template>
 <script setup>
-import { ref, defineProps, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { Announcement } from 'src/models/Announcement.js'
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 import AnnouncementCard from './AnnouncementCard.vue';
