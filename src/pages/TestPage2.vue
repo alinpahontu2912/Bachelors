@@ -1,8 +1,6 @@
-<template>
+<!-- <template>
   <div>
     <q-btn @click="updateData" />
-    <q-circular-progress v-if="isLoading" indeterminate size="75px" :thickness="0.6" color="lime" center-color="grey-8"
-      class="q-ma-md" />
   </div>
   <div>
     <svg v-if="!isLoading" id="graph" style="width: 520; height: 520;">
@@ -44,7 +42,7 @@ const initialData2 = [
   { x: 4, y: 8 }
 ]
 const margin = 60
-const width = 400
+const width = 1400
 const height = 400
 
 
@@ -59,6 +57,8 @@ const d = computed(() => {
 })
 
 function drawGraph() {
+  // const transition = d3.transition()
+  //   .duration(1000)
   const svg = d3.select('#graph')
     .style('width', width + margin * 2)
     .style("height", height + margin * 2)
@@ -72,18 +72,26 @@ function drawGraph() {
 
   d3.selectAll(".x-axis .tick text")
     .attr("transform", "rotate(-15)");
+
+  // d3.selectAll('path')
+  //   .data(lines.value)
+  //   .transition(transition)
+  //   .attr('stroke-dasharray', 10)
+  //   .attr('d', d => d.path)
+  //   .attr('stroke-dasharray', 0)
+
+}
+
+onMounted(() => {
+
   lines.value.push({ path: line.value(initialData.value), color: 'blue' })
   lines.value.push({ path: line.value(initialData2), color: 'red' })
   for (let i = 0; i < initialData.value.length; i++) {
     circles.value.push({ cx: xScale.value(initialData.value[i].x), cy: yScale.value(initialData.value[i].y), fill: 'blue', title: 'Test' })
     circles.value.push({ cx: xScale.value(initialData2[i].x), cy: yScale.value(initialData2[i].y), fill: 'red', title: 'Test' })
   }
-}
-
-onMounted(() => {
-
-
   drawGraph()
+
   // this.data = this.initialData;
 
   // lines.value = this.data.map(series => {
@@ -102,16 +110,53 @@ onMounted(() => {
 
 
 function updateData() {
-  console.log('click')
+  console.log('click update')
+
+
+  const transition = d3.transition()
+    .duration(500)
+
+  d3.selectAll('path')
+    .data(lines.value)
+    .transition(transition)
+    .attr('stroke-dasharray', 10)
+    .attr('d', d => d.path)
+    .attr('stroke-dasharray', 0)
+
+
   initialData.value = [
     { x: 0, y: 3, },
     { x: 1, y: 5 },
     { x: 2, y: 7 },
     { x: 4, y: 12 }
   ]
-  const xScale = ref(d3.scaleLinear().range([0, width - margin]).domain(d3.extent([0, d3.max(initialData.value.x)])).nice())
-  const yScale = ref(d3.scaleLinear().range([height - margin, 0]).domain([0, d3.max(initialData.value, (d) => d3.max(d.y))]).nice())
-  lines.value = [{ path: line.value(initialData.value), color: 'blue' }]
+  const testData = [
+    { x: 0, y: 4, },
+    { x: 1, y: 2 },
+    { x: 2, y: 9 },
+    { x: 4, y: 6 }
+  ]
+
+  // const xScale = ref(d3.scaleLinear().range([0, width - margin]).domain(d3.extent([0, d3.max(initialData.value.x)])).nice())
+  // const yScale = ref(d3.scaleLinear().range([height - margin, 0]).domain([0, d3.max(initialData.value, (d) => d3.max(d.y))]).nice())
+  lines.value = []
+  lines.value = [{ path: line.value(initialData.value), color: 'blue' }, { path: line.value(testData), color: 'red' }]
+
+
+  // lines.value.forEach((line, index) => {
+  //   d3.select('#graph')
+  //     .select(`#line-${index}`)
+  //     .transition(transition)
+  //     .attr('stroke-dashoffset', line.length)
+  //     .attr('stroke-dasharray', line.length)
+  //     .attr('stroke', this.data[index].color)
+  //     .attr('d', line.path)
+  //     .transition(transition)
+  //     .attr('stroke-dashoffset', 0);
+  // });
+
+
+
   console.log(initialData)
 }
 
@@ -124,4 +169,108 @@ path {
 circle {
   transition: 5000ms ease;
 }
-</style>
+</style> -->
+<!-- <template>
+  <q-btn @click="updateData">Test</q-btn>
+  <div>
+    <Doughnut :data="data" :options="options" ref="test" v-if="!click" />
+  </div>
+</template>
+<script setup>
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
+import { ref, computed } from 'vue';
+ChartJS.register(ArcElement, Tooltip, Legend)
+
+const test = ref(null)
+const click = ref(false)
+const ceva = ref([40, 50, 20, 80])
+const reactiveData = ref({
+  labels: ['VueJs', 'EmberJs', 'ReactJs', 'AngularJs'],
+  datasets: [
+    {
+      backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
+      data: [2, 4, 5, 18]
+    }
+  ]
+})
+
+
+const data = computed(() => {
+  return reactiveData.value
+})
+
+const options = ref({
+  responsive: true,
+  maintainAspectRatio: false
+})
+
+function updateData() {
+  console.log('asdfasfd')
+  data.value.datasets[0].data.value = [10, 30, 40, 90]
+  test.value.chart.update()
+
+}
+
+</script> -->
+
+<template>
+  <q-btn type="button" @click="shuffleData">Add data</q-btn>
+
+  <BarChart :chartData="testData" :options="options" />
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+import { BarChart } from 'vue-chart-3';
+import { Chart, registerables } from "chart.js";
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { computed, ref } from 'vue';
+
+Chart.register(...registerables);
+Chart.register(zoomPlugin);
+
+
+
+export default defineComponent({
+
+
+  components: { BarChart },
+  setup() {
+    const initialData = ref([30, 40, 60, 70, 5])
+    const options = ref({
+      plugins: {
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'x',
+          }
+        }
+      }
+    })
+    const testData = computed(() => ({
+      labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+      datasets: [
+        {
+          data: initialData.value,
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        },
+      ],
+    }));
+
+    return { testData, initialData, options };
+  },
+
+  methods: {
+
+    shuffleData() {
+      this.initialData = [20, 10, 40, 80, 51]
+    }
+  }
+});
+</script>

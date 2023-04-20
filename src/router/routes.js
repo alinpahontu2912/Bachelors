@@ -10,10 +10,10 @@ const routes = [
       { path: 'login', component: () => import('src/pages/LoginForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
       { path: 'signup', component: () => import('src/pages/SignUpForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
       { path: 'test', component:() => import('src/pages/TestMyPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
-      { path: 'test2', component:() => import('src/pages/TestPage2.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
+      { path: 'test2', component:() => import('src/pages/TestPage2.vue'), meta: {requiresAuth: false, requiresAdmin: false} },
       { path: 'announcements', component:() => import('src/pages/AnnouncementsPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
       { path: 'solveRequests', component:() => import('src/pages/RequestsPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
-
+      { path: 'admin', component:() => import('src/pages/AdminPanel.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
     ]
   },
   {
