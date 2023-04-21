@@ -216,6 +216,113 @@ function updateData() {
 
 <template>
   <q-btn type="button" @click="shuffleData">Add data</q-btn>
+  <q-btn type="button" @click="resetZoom">Add data</q-btn>
+
+  <LineChart :cfg="testData" :chartData="testData" :options="options" ref="lineChart" />
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+import { LineChart } from 'vue-chart-3';
+import { Chart, registerables } from "chart.js";
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { computed, ref } from 'vue';
+import { mode } from 'd3-array';
+
+Chart.register(...registerables);
+Chart.register(zoomPlugin);
+
+
+
+export default defineComponent({
+
+
+  components: { LineChart },
+  setup() {
+    const initialData = ref([{ x: '1', y: 20 }, { x: '3', y: 10 }, { x: '4', y: 10 }, { x: '5', y: 20 }, { x: '6', y: null }, { x: '7', y: 10 }, { x: '8', y: 10 }, { x: '9', y: 20 }, { x: '10', y: null }, { x: '11', y: 10 }, { x: '12', y: 10 }, { x: '13', y: 20 }, { x: '14', y: null }, { x: '15', y: 10 }, { x: '16', y: 10 }])//[30, 40, 60, 70, 5])
+    const lineChart = ref()
+    const options = ref({
+      parsing: {
+        xAxisKey: 'x',
+        yAxisKey: 'y'
+      },
+      plugins: {
+        // zoom: {
+        //   // pan: {
+        //   //   enabled: true,
+        //   //   mode: 'x',
+        //   //   threshold: 10,
+        //   //   speed: 0.2,
+        //   //   modifierKey: 'shift'
+        //   // },
+        //   zoom: {
+        //     wheel: {
+        //       enabled: true,
+        //       speed: 0.2
+
+        //     }
+        //   }
+        // },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pan: {
+              enabled: true
+            },
+            drag: {
+              enabled: true,
+              mode: 'x'
+            },
+            mode: 'y',
+          }
+        }
+      }
+    })
+    const testData = computed(() => ({
+      type: 'line',
+
+      datasets: [{
+        label: 'Romania',
+        data: initialData.value,
+        spanGaps: true
+      }]
+      // labels: ['1', '2', '3', '4', '5'],
+      // datasets: [
+      //   {
+      //     label: 'Romania',
+      //     data: initialData.value,
+      //     backgroundColor: ['#A5C8ED'],
+      //     hidden: false,
+      //   },
+      //   {
+      //     label: 'Bulgaria',
+      //     data: [20, 10, 60, 90, 45],
+      //     backgroundColor: ['#77CEFF'],
+
+      //   },
+      // ],
+    }));
+
+    return { testData, initialData, options, lineChart };
+  },
+
+  methods: {
+
+    shuffleData() {
+      this.initialData = [20, 10, 40, 80, 51]
+    },
+
+    resetZoom() {
+      this.$refs.lineChart.chart.resetZoom()
+    }
+  }
+});
+</script>
+
+<!-- <template>
+  <q-btn type="button" @click="shuffleData">Add data</q-btn>
 
   <BarChart :chartData="testData" :options="options" />
 </template>
@@ -226,15 +333,9 @@ import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { computed, ref } from 'vue';
-
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
-
-
-
 export default defineComponent({
-
-
   components: { BarChart },
   setup() {
     const initialData = ref([30, 40, 60, 70, 5])
@@ -260,17 +361,18 @@ export default defineComponent({
           data: initialData.value,
           backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
         },
+        {
+          data: [13, 45, 23, 56, 12],
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        }
       ],
     }));
-
     return { testData, initialData, options };
   },
-
   methods: {
-
     shuffleData() {
       this.initialData = [20, 10, 40, 80, 51]
     }
   }
 });
-</script>
+</script> -->
