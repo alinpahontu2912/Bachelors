@@ -5,7 +5,7 @@ const routes = [
     path: '/',
     component: () => import('src/layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('src/pages/TestPage.vue') , meta: {requiresAuth: false, requiresAdmin: false}},
+      { path: 'barchart', component: () => import('src/pages/BarChart.vue') , meta: {requiresAuth: false, requiresAdmin: false}},
       { path: 'start', component: () => import('pages/StartPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
       { path: 'login', component: () => import('src/pages/LoginForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },
       { path: 'signup', component: () => import('src/pages/SignUpForm.vue'), meta: {requiresAuth: false, requiresAdmin: false}  },

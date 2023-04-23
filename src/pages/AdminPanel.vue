@@ -1,70 +1,96 @@
 <template>
   <div class=" row items-align content-center align-center">
     <q-card class="fit column wrap justify-start items-start content-start col-11 bg-grey-2" style="height: 600px">
-      <q-card-section class="fit row wrap justify-start items-start content-start col-11 q-pa-md">
+      <q-card-section class="fit row wrap col-11 q-pa-md">
         <div class="rowContainer row col-6 ">
           <div>
-            <Doughnut :data="data" :options="options" ref="test" v-if="!click" style="height: 200px;" />
+            <Pie :data="pieData" ref="test" style="height: 200px;" />
           </div>
         </div>
-        <div class="rowContainer row col-6">
-          <q-list class="rowContainer row col-12">
-            <q-item class="col-12">Test1</q-item>
-            <q-item class="col-12">Test1</q-item>
-            <q-item class="col-12">Test1</q-item>
+        <div class="rowContainer row col-6 items-center justify-center content-center">
+          <q-list class="rowContainer row col-12 ">
+            <q-item class="col-12 items-center justify-center content-center">Total Users: {{ stats.totalUsers }}</q-item>
+            <q-item class="col-12 items-center justify-center content-center">Total Requests: {{ stats.totalRequsts
+            }}</q-item>
+            <q-item class="col-12 items-center justify-center content-center">Total Feedback: {{ stats.totalFeedback
+            }}</q-item>
+            <q-item class="col-12 items-center justify-center content-center"><q-btn>
+                Create Announcement
+              </q-btn></q-item>
           </q-list>
         </div>
       </q-card-section>
-      <q-separator class="fit row wrap" style="width: 10px;" />
-      <q-card-section class="fit row wrap justify-start items-start content-start col-11 q-pa-md bg-red"
-        style="height: 200px;">
-        <div class="row justify-center items-center content-center col-12" style="height: 400px;">
-          <div class="col-3 column">
-            <div class="col-12 column justify-center items-center content-center">
-              <div>New Users</div>
-              <q-btn>Get Data</q-btn>
-            </div>
-          </div>
-          <div class="col-9 column justify-center items-center content-center">Graps</div>
+      <q-card-section class="fit row q-pa-md">
+        <div class="q-px-md">
+          <BarChart :chartData="barData" :options="options" ref="barChart" style="height: 400px; width: 90vw;" />
         </div>
       </q-card-section>
     </q-card>
   </div>
 </template>
 <script setup>
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import { Doughnut } from 'vue-chartjs'
-import { ref, computed } from 'vue';
-ChartJS.register(ArcElement, Tooltip, Legend)
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, registerables } from 'chart.js'
+import { Pie } from 'vue-chartjs'
+import { BarChart } from 'vue-chart-3';
+import { ref, computed, onMounted } from 'vue';
+import useQuery from 'src/compositionFunctions/useQuery';
 
-const test = ref(null)
-const click = ref(false)
-const ceva = ref([40, 50, 20, 80])
-const reactiveData = ref({
-  labels: ['VueJs', 'EmberJs', 'ReactJs', 'AngularJs'],
-  datasets: [
-    {
-      backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
-      data: [2, 4, 5]
-    }
-  ]
-})
+ChartJS.register(ArcElement, Tooltip, Legend, ...registerables)
+const { getAdminStats, getNewUserStats } = useQuery()
 
+const stats = ref({ totalUsers: 0, totalFeedback: 0, totalRequsts: 0 })
 
-const data = computed(() => {
-  return reactiveData.value
-})
+const pieLabels = ref([])
+const pieDatasets = ref([])
+const barLabels = ref([])
+const barDatasets = ref([])
+
+const pieData = computed(() => ({
+  labels: pieLabels.value,
+  datasets: pieDatasets.value
+}));
+
+const barData = computed(() => ({
+  labels: barLabels.value,
+  datasets: barDatasets.value
+}));
 
 const options = ref({
   responsive: true,
-  maintainAspectRatio: false
+  maintainAspectRatio: true,
 })
 
-function updateData() {
-  reactiveData.value.datasets[0].data.value = [10, 30, 40, 90]
-  //test.value.update()
 
+onMounted(async () => {
+  const adminStats = await getAdminStats()
+  pieLabels.value = Object.keys(adminStats['jobs'])
+  pieDatasets.value = [createPieDataSet(Object.values(adminStats['jobs']))]
+  const newUsersData = await getNewUserStats()
+  barLabels.value = Object.keys(newUsersData).map(x => new Date(x).toLocaleDateString("en-US"))
+  console.log(barLabels.value)
+  barDatasets.value = createBarDataSet(Object.values(newUsersData))
+  stats.value = { totalUsers: adminStats['stats']['totalusers'], totalFeedback: adminStats['stats']['totalFeedback'], totalRequsts: adminStats['stats']['totalrequests'] }
+
+})
+
+function createPieDataSet(data) {
+  return {
+    data: data,
+    backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)'
+    ],
+  }
 }
+
+function createBarDataSet(data) {
+  return [{
+    label: 'New Users',
+    data: data,
+  }]
+}
+
 </script>
 <style>
 .columnContainer {
@@ -93,14 +119,3 @@ function updateData() {
 
 }
 </style>
-<!-- <template>
-  <q-btn @click="updateData">Test</q-btn>
-  <div>
-    <Doughnut :data="data" :options="options" ref="test" v-if="!click" />
-  </div>
-</template>
-
-<script setup>
-
-
-</script> -->

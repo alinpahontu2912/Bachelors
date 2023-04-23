@@ -13,6 +13,14 @@ export default function () {
     }
   }
 
+  function deleteUserData(){
+    try {
+      LocalStorage.remove(LOCAL_STORAGE_KEY.USER_TOKEN)
+    } catch (e) {
+      console.log('Could not save data on local storage')
+    }
+  }
+
   function retrieveUserData() {
     return LocalStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || null
   }
@@ -28,6 +36,7 @@ export default function () {
   return {
     saveUserData,
     retrieveUserData,
-    saveLastSignInData
+    saveLastSignInData,
+    deleteUserData
   }
 }

@@ -63,7 +63,56 @@ function createGetAnnouncementQuery(sort, type, page) {
   return target.href
 }
 
+function createDataQuery(time,sex,age,education,chartType){
+  const target = new URL(endpoint + '/lfsdata')
+  const params = new URLSearchParams()
+  params.set('sex', sex)
+  params.set('age', age)
+  params.set('education', education)
+  params.set('chartType',chartType)
+  params.set('year', time)
+  target.search = params.toString()
+  return target.href
+}
+
+
 export default function() {
+
+
+  async function getAdminStats(){
+    try {
+      const response = await axiosInstance.get(endpoint + '/userStats')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function getNewUserStats(){
+    try {
+      const response = await axiosInstance.get(endpoint + '/newUsersStats')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function getData(time,sex,age,education,chartType){
+    try {
+      const response = await axiosInstance.get(createDataQuery(time,sex,age,education,chartType))
+      if (response.status === 200) {
+        console.log(createDataQuery(time,sex,age,education,chartType))
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+
+  }
 
   async function createUser(email, password, job) {
     const newUser = new User(email, password, job, new Date())
@@ -185,6 +234,9 @@ export default function() {
     sendFeedback,
     createRequest,
     getAllRequests,
-    getAllAnnouncements
+    getAllAnnouncements,
+    getData,
+    getAdminStats,
+    getNewUserStats
   }
 }

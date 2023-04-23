@@ -61,7 +61,7 @@ onMounted(async () => {
 async function signUp() {
   signUpData.value.job = userJobs.value.find(x => x.job === signUpData.value.job).id
   console.log(signUpData.value)
-  const successfull = await signUpRequest(signUpData.value.email, signUpData.value.password, signUpData.value.job)
+  const successfull = await signUpRequest(signUpData.value.email, signUpData.value.password, signUpData.value.job, remainSignedin.value)
   if (successfull) {
     router.push('/start')
   } else {

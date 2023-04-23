@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import jwt_decode from "jwt-decode";
 import useLocalStorage from 'src/compositionFunctions/useLocalStorage'
 import useQuery from 'src/compositionFunctions/useQuery'
-const { saveUserData, retrieveUserData } = useLocalStorage()
+const { saveUserData, retrieveUserData, deleteUserData } = useLocalStorage()
 const { createUser, attemptLogIn, refreshUserToken, changePasswordRequest } = useQuery()
 
 export const userStore = defineStore('user', () => {
@@ -57,7 +57,7 @@ export const userStore = defineStore('user', () => {
 
   function logout() {
     userToken.value = null
-    saveUserData(userToken.value)
+    deleteUserData()
   }
 
   function isUserAuth() {
@@ -74,6 +74,7 @@ export const userStore = defineStore('user', () => {
 
   function getAccountInfo() {
     const decoded = jwt_decode(userToken.value);
+    console.log(decoded)
     const canDownload = decoded.permissions.includes(2)
     return {email: decoded.email, joinedOn: new Date(decoded.expiry).toDateString(), canDownload: canDownload ? 'YES' : 'NO' }
   }
