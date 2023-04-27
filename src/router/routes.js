@@ -14,6 +14,10 @@ const routes = [
       { path: 'announcements', component:() => import('src/pages/AnnouncementsPage.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
       { path: 'solveRequests', component:() => import('src/pages/RequestsPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
       { path: 'admin', component:() => import('src/pages/AdminPanel.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+      { path: 'romania/countyBarchart', component:() => import('src/pages/RomaniaCountyPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+      { path: 'romania/lineGraph', component:() => import('src/pages/RomaniaLineGraphPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+{ path: 'romania/reportGenerator', component:() => import('src/pages/RomaniaReportGenerator.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+
     ]
   },
   {

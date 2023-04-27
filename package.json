@@ -19,13 +19,17 @@
     "core-js": "^3.6.5",
     "d3": "^7.8.4",
     "jwt-decode": "^3.1.2",
+    "leaflet": "^1.9.3",
     "pinia": "^2.0.33",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",
     "vue-chart-3": "^3.1.8",
     "vue-chartjs": "^5.2.0",
+    "vue-choropleth": "^0.3.1",
     "vue-i18n": "^9.3.0-beta.16",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.0.0",
+    "vue2-leaflet": "^2.7.1",
+    "vue3-leaflet": "^1.0.43"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",

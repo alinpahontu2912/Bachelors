@@ -106,6 +106,7 @@ function createDataSets(queryResponse) {
     colors.push(colorDict[element.countryCodeNavigation.name] ? colorDict[element.countryCodeNavigation.name] : '#A5C8ED')
   })
   datasets.value.push({ data: data, label: 'Employment rate', backgroundColor: colors })//backgroundColor: backgroundColors })
+  console.log(datasets.value)
 }
 
 async function fetchData() {

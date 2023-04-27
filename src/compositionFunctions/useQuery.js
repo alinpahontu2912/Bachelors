@@ -63,14 +63,15 @@ function createGetAnnouncementQuery(sort, type, page) {
   return target.href
 }
 
-function createDataQuery(time,sex,age,education,chartType){
+function createDataQuery(time, sex, age, education, chartType, region){
   const target = new URL(endpoint + '/lfsdata')
   const params = new URLSearchParams()
   params.set('sex', sex)
-  params.set('age', age)
+ params.set('age', age)
   params.set('education', education)
   params.set('chartType',chartType)
   params.set('year', time)
+  if (region) params.set('region', region)
   target.search = params.toString()
   return target.href
 }
@@ -101,11 +102,10 @@ export default function() {
     }
   }
 
-  async function getData(time,sex,age,education,chartType){
+  async function getData(time,sex,age,education,chartType, region){
     try {
-      const response = await axiosInstance.get(createDataQuery(time,sex,age,education,chartType))
+      const response = await axiosInstance.get(createDataQuery(time, sex, age, education, chartType, region))
       if (response.status === 200) {
-        console.log(createDataQuery(time,sex,age,education,chartType))
         return response.data
       }
     } catch (error) {

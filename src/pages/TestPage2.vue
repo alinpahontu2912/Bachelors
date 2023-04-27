@@ -102,11 +102,10 @@ onMounted(async () => {
   console.log(testData.value)
   console.log(Object.keys(test)[1])
   console.log(Object.values(test)[1])
-  const array = (Object.values(test)[1]).map(element => { return { x: parseInt(element.key.slice(-1)), y: element.value } })
-  console.log(getNextPoint(array));
 })
 
 function createDataSets(countries, data, color) {
+  console.log(data)
   datasets.value.length = 0;
   for (let i = 0; i < data.length; i++) {
     datasets.value.push({
