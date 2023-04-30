@@ -43,7 +43,7 @@ import Test from 'src/utils/Test';
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 
-const { getData } = useQuery()
+const { getEuropeanData } = useQuery()
 const { getNextPoint } = Test()
 const sexOptions = ref(['T'])
 const ageOptions = ref(['Y15-24'])
@@ -97,7 +97,7 @@ const testData = computed(() => ({
 }));
 
 onMounted(async () => {
-  const test = await getData('', 'T', 1, 1, 'line');
+  const test = await getEuropeanData('', 'T', 1, 1, 'line');
   createDataSets(Object.keys(test), Object.values(test))
   console.log(testData.value)
   console.log(Object.keys(test)[1])
@@ -112,7 +112,6 @@ function createDataSets(countries, data, color) {
       label: countries[i],
       data: data[i].map(element => { return { x: element.key, y: element.value } }),
       hidden: true,
-      // backgroundColor: colorDict[element.countryCode] ? colorDict[element.countryCode] : '#A5C8ED'
     })
   }
 }

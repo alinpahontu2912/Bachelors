@@ -32,7 +32,7 @@ import useQuery from 'src/compositionFunctions/useQuery';
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 
-const { getData } = useQuery()
+const { getRegionalData } = useQuery()
 
 
 const datasets = ref([])
@@ -74,7 +74,7 @@ onMounted(async () => {
   for (let i = 2010; i <= 2021; i++) {
     yearOptions.value.push((i).toString())
   }
-  const test = await getData('2020', 'T', '0', '0', 'barChart', 'ROMANIA');
+  const test = await getRegionalData('2021', 'T', '', 'barChart');
   createDataSets(test)
 })
 
@@ -86,11 +86,11 @@ function createDataSets(queryResponse) {
   datasets.value.length = 0;
   datasets.value.push({ data: maleValues, label: 'M' })
   datasets.value.push({ data: femaleValues, label: 'F' })
-
+  console.log(testData.value)
 }
 
 async function fetchData() {
-  const test = await getData(yearOption.value, 'T', '0', '0', 'barChart', 'ROMANIA');
+  const test = await getRegionalData(yearOption.value, 'T', '', 'barChart');
   createDataSets(test)
 }
 

@@ -42,7 +42,7 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import { computed, ref, onMounted, } from 'vue';
 import useQuery from 'src/compositionFunctions/useQuery';
 import { colorDict } from 'src/utils/CountryColours'
-const { getData } = useQuery()
+const { getEuropeanData } = useQuery()
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
@@ -89,7 +89,7 @@ const testData = computed(() => ({
 
 
 onMounted(async () => {
-  const test = await getData('2020-Q4', 'T', 1, 1, 'barChart');
+  const test = await getEuropeanData('2020-Q4', 'T', 1, 1, 'barChart');
   labels.value = test.map(element => { return element.countryCodeNavigation.name })
   createDataSets(test)
   yearOptions.value.push(...generateYearQuarters(2020, 2021))
@@ -110,7 +110,7 @@ function createDataSets(queryResponse) {
 }
 
 async function fetchData() {
-  const response = await getData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
+  const response = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
   labels.value = response.map(element => { return element.countryCodeNavigation.name })
   createDataSets(response)
 }

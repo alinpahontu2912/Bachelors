@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="q-pa-md">
-      <LineChart :chartData="testData" :options="options" ref="lineChart" style="height: 500px; width: 90vw;" />
+      <LineChart id="test" :chartData="testData" :options="options" ref="lineChart" style="height: 500px; width: 90vw;" />
     </div>
   </div>
 </template>
@@ -24,25 +24,57 @@
 
 import { LineChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { computed, ref, onMounted, } from 'vue';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
-const { getData } = useQuery()
-
+import Exporter from "vue-chartjs-exporter";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+const { getRegionalData } = useQuery()
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
+Chart.register(ChartDataLabels);
 
+const colorDict = ref([])
 const datasets = ref([])
 const lineChart = ref(null)
 const labels = ref([])
 const sexOptions = ref(['F', 'M'])
 const sexOption = ref('M')
-
+const test = ref(true)
 const options = ref({
+  layout: {
+    padding: {
+      right: 80
+    }
+  },
   plugins: {
+    responsive: true,
+    maintainAspectRatio: false,
     title: {
       display: true,
       text: 'Custom Chart Title'
+    },
+    datalabels: {
+      color: 'black',
+      anchor: 'end',
+      align: 'right',
+      color: chart => {
+        return chart.dataset.backgroundColor
+      },
+      formatter: function (value, context) {
+        if (test.value) {
+          if (context.dataIndex === context.dataset.data.length - 1) {
+            return context.dataset.label
+          } else {
+            return ''
+          }
+        }
+        else {
+          if (context.dataIndex === context.dataset.data.length - 1) {
+            return context.dataset.label
+          }
+        }
+      }
     },
     zoom: {
       zoom: {
@@ -50,7 +82,7 @@ const options = ref({
           enabled: true,
         },
         pan: {
-          enabled: true
+          enabled: true,
         },
         drag: {
           enabled: true,
@@ -60,9 +92,10 @@ const options = ref({
       }
     }
   },
-
 })
 
+
+const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
 
 const testData = computed(() => ({
   labels: labels.value,
@@ -72,29 +105,32 @@ const testData = computed(() => ({
 
 
 onMounted(async () => {
-  const test = await getData('', 'M', '0', '0', 'line', 'ROMANIA');
+  for (let i = 0; i < 50; i++) {
+    colorDict.value.push('#' + randomColor())
+  }
+  const test = await getRegionalData('', sexOption.value, '', 'line');
   createDataSets(test)
-
 })
 
 
 function createDataSets(queryResponse) {
-  // let maleValues = queryResponse.filter(x => x.sex == 'M').map(x => x.val)
-  // let femaleValues = queryResponse.filter(x => x.sex == 'F').map(x => x.val)
   const regions = [...new Set(queryResponse.map(x => x.region))]
   labels.value = ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
   datasets.value.length = 0;
   for (let i = 0; i < regions.length; i++) {
-    datasets.value.push({ data: queryResponse.filter(x => x.sex == 'M' && x.region == regions[i]).map(x => x.val), label: regions[i] + ' M', hidden: true, display: false })
+
+    datasets.value.push({ data: queryResponse.filter(x => x.region == regions[i]).map(x => x.val), label: regions[i], hidden: true, backgroundColor: colorDict.value[i], borderColor: colorDict.value[i] })
   }
-  console.log(datasets.value)
 }
 
 async function fetchData() {
-  const response = await getData(yearOption.value, null, null, null, 'barChart', 'ROMANIA');
-  labels.value = response.map(element => { return element.countryCodeNavigation.name })
+  test.value = !test.value
+  lineChart.value.chartInstance.update()
+  const exp = new Exporter([document.getElementById("test")])
+  exp.export_pdf().then((pdf) => pdf.save("test.pdf"));
+
+  // const response = await getRegionalData('', sexOption.value, '', 'line');
   // createDataSets(response)
-  console.log(response);
 }
 
 function resetZoom() {

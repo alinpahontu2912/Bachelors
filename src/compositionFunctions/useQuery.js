@@ -63,15 +63,25 @@ function createGetAnnouncementQuery(sort, type, page) {
   return target.href
 }
 
-function createDataQuery(time, sex, age, education, chartType, region){
+function createEuropeanDataQuery(time, sex, age, education, chartType){
   const target = new URL(endpoint + '/lfsdata')
   const params = new URLSearchParams()
   params.set('sex', sex)
- params.set('age', age)
+  params.set('age', age)
   params.set('education', education)
   params.set('chartType',chartType)
   params.set('year', time)
-  if (region) params.set('region', region)
+  target.search = params.toString()
+  return target.href
+}
+
+function createRegionalDataQuery(time, sex, residency, chartType){
+  const target = new URL(endpoint + '/regionalData/RO')
+  const params = new URLSearchParams()
+  params.set('sex', sex)
+  params.set('residency', residency)
+  params.set('chartType',chartType)
+  params.set('year', time)
   target.search = params.toString()
   return target.href
 }
@@ -102,16 +112,26 @@ export default function() {
     }
   }
 
-  async function getData(time,sex,age,education,chartType, region){
+  async function getEuropeanData(time, sex, age, education, chartType){
     try {
-      const response = await axiosInstance.get(createDataQuery(time, sex, age, education, chartType, region))
+      const response = await axiosInstance.get(createEuropeanDataQuery(time, sex, age, education, chartType))
       if (response.status === 200) {
         return response.data
       }
     } catch (error) {
       return null
     }
+  }
 
+  async function getRegionalData(time, sex, residency, chartType){
+    try {
+      const response = await axiosInstance.get(createRegionalDataQuery(time, sex, residency, chartType))
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
   }
 
   async function createUser(email, password, job) {
@@ -235,7 +255,8 @@ export default function() {
     createRequest,
     getAllRequests,
     getAllAnnouncements,
-    getData,
+    getEuropeanData,
+    getRegionalData,
     getAdminStats,
     getNewUserStats
   }
