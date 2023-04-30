@@ -39,16 +39,15 @@ import { computed, ref, onMounted } from 'vue';
 import useQuery from 'src/compositionFunctions/useQuery';
 import { colorDict } from 'src/utils/CountryColours'
 import Test from 'src/utils/Test';
-
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 
 const { getEuropeanData } = useQuery()
 const { getNextPoint } = Test()
 const sexOptions = ref(['T'])
-const ageOptions = ref(['Y15-24'])
+const ageOptions = ref(['15-24'])
 const educatonOptions = ref(['0-2'])
-const ageOption = ref('Y15-24')
+const ageOption = ref('15-24')
 const sexOption = ref('T')
 const educationOption = ref('0-2')
 
@@ -99,13 +98,9 @@ const testData = computed(() => ({
 onMounted(async () => {
   const test = await getEuropeanData('', 'T', 1, 1, 'line');
   createDataSets(Object.keys(test), Object.values(test))
-  console.log(testData.value)
-  console.log(Object.keys(test)[1])
-  console.log(Object.values(test)[1])
 })
 
-function createDataSets(countries, data, color) {
-  console.log(data)
+function createDataSets(countries, data) {
   datasets.value.length = 0;
   for (let i = 0; i < data.length; i++) {
     datasets.value.push({

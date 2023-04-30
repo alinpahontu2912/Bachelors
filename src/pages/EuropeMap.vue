@@ -1,18 +1,18 @@
 <template>
-  <div class="fit column" style="padding-top: 0px !important">
+  <div class="fit column" style="padding-top: !important 0">
     <div class="row q-pa-md content-center align-center justify-center">
-      <text class="q-pa-md">Legend</text>
-      <div class="row col-2 q-pa-md content-center justify-evenly" :class="click ? 'countries' : 'euAverage'">
-        <q-tooltip class="bg-grey text-body2">
-          {{ click ? `${min} - ${max}` : `${min} - ${average} - ${max}` }}
-        </q-tooltip>
-      </div>
       <div class="rowContainer row ">
-        <div class="row col-2 q-pa-md content-center justify-evenly">
+        <div class="row col-3 q-pa-md content-center justify-evenly" :class="click ? 'countries' : 'euAverage'">
+          <text class="q-pa-md">LEGENDA</text>
+          <q-tooltip class="bg-grey text-body2">
+            {{ click ? `${min} - ${max}` : `${min} - ${average} - ${max}` }}
+          </q-tooltip>
+        </div>
+        <div class="row col-1 q-pa-md content-center justify-evenly">
           <q-select color="teal" filled v-model="yearOption" label="AN" :options="yearOptions" style="width: 250px"
             behavior="menu" />
         </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
+        <div class="row col-1 q-pa-md content-center justify-evenly">
           <q-select color="teal" filled v-model="sexOption" label="SEX" :options="sexOptions" style="width: 250px"
             behavior="menu" />
         </div>
@@ -28,7 +28,7 @@
           <q-select color="teal" filled v-model="compareOption" label="COMPARATIE" :options="compareOptions"
             style="width: 250px" behavior="menu" />
         </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
+        <div class="row col-1 q-pa-md content-center justify-evenly">
           <q-btn class="q-pa-md fit" color="teal" @click="refresh">
             Reload
           </q-btn>
@@ -42,22 +42,22 @@
 <script setup>
 import { onMounted, onBeforeMount, ref } from 'vue'
 import { europeGeoJson } from 'src/assets/EuropeGeoJson'
+import utilities from 'src/utils/utilities.js'
 import 'leaflet/dist/leaflet.css'
 import useQuery from 'src/compositionFunctions/useQuery'
 import L from 'leaflet'
 import * as d3 from 'd3'
-import { euAverage } from 'src/utils/euAverage.js'
 let map = null
 const color = ref(d3.scaleLinear().range(['red', 'green']))
 const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
 const euMoreColor = ref(d3.scaleLinear().range(['white', 'blue']))
 const countryValue = ref(null)
 const sexOptions = ref(['T'])
-const ageOptions = ref(['Y15-24'])
+const ageOptions = ref(['15-24'])
 const educatonOptions = ref(['0-2'])
 const yearOptions = ref(['2020-Q4', '2020-Q3', '2020-Q2', '2020-Q1'])
 const yearOption = ref('2020-Q4')
-const ageOption = ref('Y15-24')
+const ageOption = ref('15-24')
 const sexOption = ref('T')
 const educationOption = ref('0-2')
 const compareOptions = ref(['TARA', 'MEDIA UE'])
@@ -67,46 +67,25 @@ const max = ref(0)
 const average = ref(0)
 const click = ref(true)
 const { getEuropeanData } = useQuery()
+const { getAgeId, getEducationId } = utilities()
 
 function createDataSets(queryResponse) {
-
   countryValue.value = new Map()
   min.value = 100
   max.value = 0
+  countryValue.value = new Map(queryResponse.map((obj) => [obj.key, obj.value]));
   queryResponse.forEach(element => {
-    console.log(element.countryCodeNavigation.name)
-    min.value = element.val < min.value ? element.val : min.value
-    max.value = element.val > max.value ? element.val : max.value
-    countryValue.value.set(element.countryCodeNavigation.name, element.val)
+    min.value = element.value < min.value ? element.value : min.value
+    max.value = element.value > max.value ? element.value : max.value
   })
   color.value.domain([min.value, max.value])
   average.value = countryValue.value.get('European Union - 27 countries (from 2020)')
 }
 
-function getAgeId(age) {
-  switch (age) {
-    case 'Y15-24':
-      return 1
-    case 'Y25-54':
-      return 2
-    default:
-      return 3
-  }
-}
 
-function getEducationId(education) {
-  switch (education) {
-    case '0-2':
-      return 1
-    case '3-4':
-      return 2
-    default:
-      return 3
-  }
-}
 
 onMounted(async () => {
-  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
+  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
   createDataSets(test)
   createMapLayer()
 })
@@ -181,7 +160,7 @@ const createMapLayer = () => {
 }
 
 async function refresh() {
-  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
+  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
   createDataSets(test)
   map.remove()
   if (compareOption.value === 'TARA') {
@@ -189,7 +168,7 @@ async function refresh() {
     click.value = true
   } else {
     click.value = false
-    euLessColor.value.domain([min.value,])
+    euLessColor.value.domain([min.value, countryValue.value.get('European Union - 27 countries (from 2020)')])
     euMoreColor.value.domain([countryValue.value.get('European Union - 27 countries (from 2020)'), max.value])
   }
 
@@ -208,6 +187,6 @@ async function refresh() {
 }
 
 .euAverage {
-  background-image: linear-gradient(to right, red, white, green)
+  background-image: linear-gradient(to right, red, white, blue)
 }
 </style>

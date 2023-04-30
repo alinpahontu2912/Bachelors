@@ -14,22 +14,6 @@
           style="width: 250px;" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn-dropdown color="teal" filled label="Extra Filters" behavior="menu">
-          <q-list>
-            <q-item>
-              <q-select color="tal" label="Axa OX" :options="[1, 2, 3, 4, 5]" style="width: 250px;" behavior="menu"
-                multiple />
-            </q-item>
-
-            <q-item>
-              <q-select color="tal" filled v-model="oxOption" label="Axa OX" :options="oxOptions" style="width: 250px;"
-                behavior="menu" />
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </div>
-
-      <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="yearOption" label="Trimestru" :options="yearOptions" style="width: 250px;"
           behavior="menu" :disable="isTimeDisabled" />
       </div>
@@ -39,17 +23,29 @@
           Reset Zoom
         </q-btn>
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
           Reload
         </q-btn>
       </div>
+      <div class="row col-1 q-pa-md content-center justify-evenly">
+        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
+          Download
+        </q-btn>
+      </div>
     </div>
     <div class="q-pa-md">
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 90vw;"
-        v-if="!isAgeOx" />
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" v-else />
-      <!-- <LineChart :chartData="testData" :options="options" ref="lineChart" style="height: 500px; width: 90vw;" /> -->
+      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
+        v-if="isTimeOx" class="q-pa-md" />
+      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
+        v-if="!isTimeOx && !isAgeOx && isBarChartSelected" class="q-pa-md" />
+      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
+        v-if="!isTimeOx && isAgeOx && isBarChartSelected" />
+      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
+        v-if="!isTimeOx && !isAgeOx && !isBarChartSelected" class="q-pa-md" />
+      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
+        v-if="!isTimeOx && isAgeOx && !isBarChartSelected" class="q-pa-md" />
+
     </div>
   </div>
 </template>
@@ -86,17 +82,20 @@ const isTimeDisabled = computed(() => {
 })
 
 const isAgeOx = ref(false)
+const isTimeOx = ref(false)
 
 
-watch(graphOption, () => {
-  yearOption.value = null
-  oxOption.value = null
-  residencyOption.value = null
-})
+// watch(graphOption, () => {
+//   yearOption.value = null
+//   oxOption.value = null
+//   residencyOption.value = null
+// })
 
 
 
 const options = ref({
+  responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     zoom: {
       zoom: {
@@ -127,21 +126,19 @@ const chartData = computed(() => ({
 
 onMounted(async () => {
   const test = await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
-  if (graphOption.value === 'BARA' && oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOxBarchart(test)
+  if (oxOption.value === 'NIVELUL EDUCATIEI') {
+    educationOx(test)
   }
-  if (graphOption.value === 'BARA' && oxOption.value === 'GRUPE VARSTA') {
-    ageOxBarchart(test)
+  if (oxOption.value === 'GRUPE VARSTA') {
+    ageOx(test)
   }
-  console.log(chartData.value)
 })
 
 
-function educationOxBarchart(queryResponse) {
+function educationOx(queryResponse) {
   while (labels.value.length) {
 
     labels.value.pop()
-    console.log(labels.value)
   }
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))])
@@ -150,14 +147,13 @@ function educationOxBarchart(queryResponse) {
     datasets.value.push({ data: queryResponse.filter(x => x.ageNavigation.age === ageValues[i]).map(x => x.val), label: ageValues[i] })
   }
   isAgeOx.value = false
+  isTimeOx.value = false
 }
 
-function ageOxBarchart(queryResponse) {
+function ageOx(queryResponse) {
 
   while (labels.value.length) {
-
     labels.value.pop()
-    console.log(labels.value)
   }
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.ageNavigation.age))])
@@ -166,17 +162,41 @@ function ageOxBarchart(queryResponse) {
     datasets.value.push({ data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i]).map(x => x.val), label: educationLevels[i] })
   }
   isAgeOx.value = true
+  isTimeOx.value = false
+}
+
+function timeOx(queryResponse) {
+
+  while (labels.value.length) {
+    labels.value.pop()
+  }
+  datasets.value.length = 0
+  labels.value = [...yearOptions.value]
+  console.log(queryResponse)
+  const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
+  const ageGroups = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
+  const total = educationLevels.length * ageGroups.length;
+  for (let i = 0; i < educationLevels.length; i++) {
+    for (let j = 0; j < ageGroups.length; j++) {
+      datasets.value.push({ data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i] && x.ageNavigation.age === ageGroups[j]).map(x => x.val), label: educationLevels[i] + " " + ageGroups[j], hidden: true })
+    }
+  }
+  isTimeOx.value = true
 }
 
 async function fetchData() {
-  const test = await await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
-  if (graphOption.value === 'BARA' && oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOxBarchart(test)
+  console.log(isTimeDisabled.value)
+  const test = isTimeDisabled.value ? await getRegionalData('', 'T', residencyOption.value, 'line') : await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
+  if (oxOption.value === 'NIVELUL EDUCATIEI') {
+    educationOx(test)
   }
-  if (graphOption.value === 'BARA' && oxOption.value === 'GRUPE VARSTA') {
-    ageOxBarchart(test)
+  if (oxOption.value === 'GRUPE VARSTA') {
+    ageOx(test)
   }
-  console.log(chartData.value)
+  if (oxOption.value === 'TIMP') {
+
+    timeOx(test)
+  }
 }
 
 function resetZoom() {
