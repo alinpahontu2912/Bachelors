@@ -1,23 +1,28 @@
 <template>
   <div class="fit column wrap content-center">
     <div class="rowContainer row justify-evenly">
-      <div class="row col-4 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="yearOption" label="Year Quarter" :options="yearOptions"
           style="width: 250px;" behavior="menu" />
       </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
           Reset Zoom
         </q-btn>
       </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
+      <!-- <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
           Reload
+        </q-btn>
+      </div> -->
+      <div class="row col-3 q-pa-md content-center justify-evenly">
+        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+          Download
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
-      <BarChart :chartData="testData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" />
+      <BarChart id="chart" :chartData="testData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" />
     </div>
   </div>
 </template>
@@ -26,14 +31,16 @@
 
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
-import { computed, ref, onMounted, } from 'vue';
+import { computed, ref, onMounted, watch, } from 'vue';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Exporter from "vue-chartjs-exporter";
+
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
-
-const { getRegionalData } = useQuery()
-
+Chart.register(ChartDataLabels);
+const { getRegionalData, getAvailableTime } = useQuery()
 
 const datasets = ref([])
 const barChart = ref(null)
@@ -43,6 +50,16 @@ const yearOption = ref('2020')
 
 const options = ref({
   plugins: {
+    title: {
+      display: true,
+      text: 'Rata de Angajare pe Judete'
+    },
+    datalabels: {
+      color: 'black',
+      anchor: 'start',
+      rotation: '-90',
+      align: 'end'
+    },
     zoom: {
       zoom: {
         wheel: {
@@ -62,7 +79,6 @@ const options = ref({
 
 })
 
-
 const testData = computed(() => ({
   labels: labels.value,
   datasets: datasets.value
@@ -71,31 +87,40 @@ const testData = computed(() => ({
 
 
 onMounted(async () => {
-  for (let i = 2010; i <= 2021; i++) {
-    yearOptions.value.push((i).toString())
-  }
-  const test = await getRegionalData('2021', 'T', '', 'barChart');
-  createDataSets(test)
+  yearOptions.value = (await getAvailableTime('regional')).sort()
+  yearOption.value = yearOptions.value[yearOptions.value.length - 1]
+  const response = await getRegionalData(yearOption.value, '', '', '', 'barChart');
+  createDataSets(response)
 })
 
 
 function createDataSets(queryResponse) {
-  let maleValues = queryResponse.filter(x => x.sex == 'M').map(x => x.val)
-  let femaleValues = queryResponse.filter(x => x.sex == 'F').map(x => x.val)
-  labels.value = [...new Set(queryResponse.map(x => x.region))]
   datasets.value.length = 0;
-  datasets.value.push({ data: maleValues, label: 'M' })
-  datasets.value.push({ data: femaleValues, label: 'F' })
-  console.log(testData.value)
+  labels.value = [...Object.keys(queryResponse)]
+  let maleValues = [], femaleValues = [], total = [];
+  for (let i = 0; i < labels.value.length; i++) {
+    maleValues.push(queryResponse[labels.value[i]]['M'])
+    femaleValues.push(queryResponse[labels.value[i]]['F'])
+    total.push(queryResponse[labels.value[i]]['T'])
+  }
+  datasets.value.push({ data: maleValues, label: 'M', hidden: true })
+  datasets.value.push({ data: femaleValues, label: 'F', hidden: true })
+  datasets.value.push({ data: total, label: 'T', hidden: false })
 }
 
-async function fetchData() {
-  const test = await getRegionalData(yearOption.value, 'T', '', 'barChart');
-  createDataSets(test)
-}
+watch(() => yearOption.value, async () => {
+  const response = await getRegionalData(yearOption.value, '', '', '', 'barChart');
+  createDataSets(response)
+})
 
 function resetZoom() {
   barChart.value.chartInstance.resetZoom()
 }
+
+function downloadAsPdf() {
+  const exp = new Exporter([document.getElementById("chart")])
+  exp.export_pdf().then((pdf) => pdf.save(`CountyEmploymentRate${yearOption.value}.pdf`));
+}
+
 
 </script>

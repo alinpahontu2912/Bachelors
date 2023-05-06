@@ -1,33 +1,29 @@
 <template>
-  <div class="fit column" style="padding-top: 0px !important">
-    <div class="row q-pa-md content-center align-center justify-center">
-      <div class='col-4' :class="click ? 'judete' : 'medieUe'">
-        <q-tooltip class="bg-grey text-body2">
-          {{ click ? `${min} - ${max}` : `${min} - ${euAverage.get(yearOption)[sexOption]} - ${max}` }}
-        </q-tooltip>
-      </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="compareOption" label="COMPARATIE" :options="compareOptions"
-          style="width: 250px" behavior="menu" />
-      </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="sexOption" label="SEX" :options="sexOptions" style="width: 250px"
-          behavior="menu" />
-      </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="yearOption" label="AN" :options="yearOptions" style="width: 250px"
-          behavior="menu" />
-      </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="refresh" label="REFRESH" />
-      </div>
+  <div class="row content-center align-center justify-center q-py-sm" style="padding-top: 0% !important;">
+    <div class='row col-4 q-px-md content-center justify-evenly' :class="click ? 'judete' : 'medieUe'">
+      <text class="q-pa-md">LEGENDA</text>
+      <q-tooltip class="bg-grey text-body2">
+        {{ click ? `${min} - ${max}` : `${min} - ${euAverage.get(options.yearOption)[options.sexOption]} - ${max}` }}
+      </q-tooltip>
     </div>
-    <div id="mapContainer" class="row" />
+    <div class="row col-2 q-px-md content-center justify-evenly">
+      <q-select color="teal" filled v-model="options.compareOption" label="COMPARATIE" :options="compareOptions"
+        style="width: 250px" behavior="menu" />
+    </div>
+    <div class="row col-2 q-px-md content-center justify-evenly">
+      <q-select color="teal" filled v-model="options.sexOption" label="SEX" :options="sexOptions" style="width: 250px"
+        behavior="menu" />
+    </div>
+    <div class="row col-2 q-px-md content-center justify-evenly">
+      <q-select color="teal" filled v-model="options.yearOption" label="AN" :options="yearOptions" style="width: 250px"
+        behavior="menu" />
+    </div>
   </div>
+  <div id="mapContainer" class="row" />
 </template>
 
 <script setup>
-import { onMounted, onBeforeMount, ref } from 'vue'
+import { onMounted, onBeforeMount, ref, watch } from 'vue'
 import { romaniaGeoJson } from 'src/assets/RomaniaGeojson'
 import 'leaflet/dist/leaflet.css'
 import useQuery from 'src/compositionFunctions/useQuery'
@@ -40,16 +36,20 @@ const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
 const euMoreColor = ref(d3.scaleLinear().range(['white', 'blue']))
 const regions = ref([])
 const countyValue = ref(new Map())
-const sexOptions = ref(['F', 'M'])
-const sexOption = ref('M')
-const yearOption = ref('2021')
-const yearOptions = ref(['2021', '2020', '2019', '2018', '2017', '2016', '2015'])
+const sexOptions = ref(['F', 'M', 'T'])
+const yearOptions = ref([])
 const compareOptions = ref(['JUDETE', 'MEDIA UE'])
-const compareOption = ref('JUDETE')
+
+const options = ref({
+  sexOption: 'M',
+  yearOption: '2021',
+  compareOption: 'JUDETE'
+})
+
 const click = ref(true)
 const min = ref(100)
 const max = ref(0)
-const { getRegionalData } = useQuery()
+const { getRegionalData, getAvailableTime } = useQuery()
 
 function createDataSets(queryResponse) {
   regions.value = queryResponse.map(x => x.region)
@@ -62,8 +62,9 @@ function createDataSets(queryResponse) {
 }
 
 onMounted(async () => {
-  const test = await getRegionalData(yearOption.value, sexOption.value, '', 'barChart');
-  createDataSets(test)
+  yearOptions.value = (await getAvailableTime('regional')).sort()
+  const response = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
+  createDataSets(response)
   createMapLayer()
 })
 onBeforeMount(() => {
@@ -74,10 +75,10 @@ onBeforeMount(() => {
 
 const createMapLayer = () => {
   function getColor(d) {
-    if (compareOption.value == 'JUDETE') {
+    if (options.value.compareOption == 'JUDETE') {
       return color.value(countyValue.value.get(d.shapeName))
     } else {
-      return countyValue.value.get(d.shapeName) > euAverage.get(yearOption.value)[sexOption.value] ?
+      return countyValue.value.get(d.shapeName) > euAverage.get(options.value.yearOption)[options.value.sexOption] ?
         euMoreColor.value(countyValue.value.get(d.shapeName)) : euLessColor.value(countyValue.value.get(d.shapeName))
     }
   }
@@ -130,21 +131,34 @@ const createMapLayer = () => {
     style: style,
     onEachFeature: onEachFeature
   }).bindTooltip(function (layer) {
-    return layer.feature.properties.shapeName + " " + countyValue.value.get(layer.feature.properties.shapeName); //merely sets the tooltip text
+    return layer.feature.properties.shapeName + ": " + countyValue.value.get(layer.feature.properties.shapeName); //merely sets the tooltip text
   }, { permanent: false, opacity: 1 }
   ).addTo(map);
 }
 
+watch(() => options.value.sexOption, async () => {
+  refresh()
+})
+
+watch(() => options.value.yearOption, async () => {
+  refresh()
+})
+
+watch(() => options.value.compareOption, async () => {
+  refresh()
+})
+
+
 async function refresh() {
-  const test = await getRegionalData(yearOption.value, sexOption.value, '', 'barChart');
+  const test = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
   createDataSets(test)
-  if (compareOption.value === 'JUDETE') {
+  if (options.value.compareOption === 'JUDETE') {
     color.value.range(['red', 'green'])
     click.value = true
   } else {
     click.value = false
-    euLessColor.value.domain([min.value, euAverage.get(yearOption.value)[sexOption.value]])
-    euMoreColor.value.domain([euAverage.get(yearOption.value)[sexOption.value], max.value])
+    euLessColor.value.domain([min.value, euAverage.get(options.value.yearOption)[options.value.sexOption]])
+    euMoreColor.value.domain([euAverage.get(options.value.yearOption)[options.value.sexOption], max.value])
   }
   map.remove()
   createMapLayer()

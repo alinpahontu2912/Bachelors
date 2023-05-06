@@ -63,25 +63,35 @@ function createGetAnnouncementQuery(sort, type, page) {
   return target.href
 }
 
-function createEuropeanDataQuery(time, sex, age, education, chartType){
+function createEuropeanDataQuery(startTime, endTime, sex, age, education, chartType){
   const target = new URL(endpoint + '/lfsdata')
   const params = new URLSearchParams()
   params.set('sex', sex)
   params.set('age', age)
   params.set('education', education)
-  params.set('chartType',chartType)
-  params.set('year', time)
+  params.set('chartType', chartType)
+  params.set('startTime', startTime)
+  params.set('endTime', endTime)
   target.search = params.toString()
   return target.href
 }
 
-function createRegionalDataQuery(time, sex, residency, chartType){
+function createRegionalDataQuery(startTime, endTime, sex, residency, chartType){
   const target = new URL(endpoint + '/regionalData/RO')
   const params = new URLSearchParams()
   params.set('sex', sex)
   params.set('residency', residency)
   params.set('chartType',chartType)
-  params.set('year', time)
+  params.set('startTime', startTime)
+  params.set('endTime', endTime)
+  target.search = params.toString()
+  return target.href
+}
+
+function createGetAvailableTimeQuery(setName) {
+  const target = new URL(endpoint + '/time')
+  const params = new URLSearchParams()
+  params.set('setName', setName)
   target.search = params.toString()
   return target.href
 }
@@ -112,9 +122,9 @@ export default function() {
     }
   }
 
-  async function getEuropeanData(time, sex, age, education, chartType){
+  async function getAvailableTime(setName) {
     try {
-      const response = await axiosInstance.get(createEuropeanDataQuery(time, sex, age, education, chartType))
+      const response = await axiosInstance.get(createGetAvailableTimeQuery(setName))
       if (response.status === 200) {
         return response.data
       }
@@ -123,9 +133,20 @@ export default function() {
     }
   }
 
-  async function getRegionalData(time, sex, residency, chartType){
+  async function getEuropeanData(startTime, endTime, sex, age, education, chartType){
     try {
-      const response = await axiosInstance.get(createRegionalDataQuery(time, sex, residency, chartType))
+      const response = await axiosInstance.get(createEuropeanDataQuery(startTime == null ? '' : startTime, endTime == null ? '' : endTime, sex == null ? '' : sex, age , education, chartType))
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function getRegionalData(startTime, endTime, sex, residency, chartType){
+    try {
+      const response = await axiosInstance.get(createRegionalDataQuery(startTime == null ? '' : startTime, endTime == null ? '' : endTime, sex == null ? '' : sex, residency, chartType))
       if (response.status === 200) {
         return response.data
       }
@@ -258,6 +279,7 @@ export default function() {
     getEuropeanData,
     getRegionalData,
     getAdminStats,
-    getNewUserStats
+    getNewUserStats,
+    getAvailableTime
   }
 }

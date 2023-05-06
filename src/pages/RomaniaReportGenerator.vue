@@ -29,22 +29,22 @@
         </q-btn>
       </div>
       <div class="row col-1 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
+        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           Download
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
-      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
-        v-if="isTimeOx" class="q-pa-md" />
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
-        v-if="!isTimeOx && !isAgeOx && isBarChartSelected" class="q-pa-md" />
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
-        v-if="!isTimeOx && isAgeOx && isBarChartSelected" />
-      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
-        v-if="!isTimeOx && !isAgeOx && !isBarChartSelected" class="q-pa-md" />
-      <LineChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 95vw;"
-        v-if="!isTimeOx && isAgeOx && !isBarChartSelected" class="q-pa-md" />
+      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="isTimeOx" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx && isBarChartSelected" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx && isBarChartSelected" />
+      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx && !isBarChartSelected" />
+      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx && !isBarChartSelected" />
 
     </div>
   </div>
@@ -57,14 +57,22 @@ import { Chart, registerables } from "chart.js";
 import { computed, ref, onMounted, watch } from 'vue';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
+import utilities from 'src/utils/utilities.js'
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Exporter from "vue-chartjs-exporter";
+
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
-const { getRegionalData } = useQuery()
+Chart.register(ChartDataLabels);
 
+const { getRegionalData } = useQuery()
+const { randomColor } = utilities()
+
+const colorDict = ref([])
 const datasets = ref([])
-const barChart = ref(null)
+const chart = ref(null)
 const labels = ref([])
-const yearOptions = ref(['2019-Q1', '2019-Q2', '2019-Q3', '2019-Q4', '2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4'])
+const yearOptions = ref(['2019-Q1', '2019-Q2', '2019-Q3', '2019-Q4', '2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4', '2022-Q1', '2022-Q2', '2022-Q3'])
 const yearOption = ref('2020-Q1')
 const graphOptions = ref(['LINIAR', 'BARA'])
 const graphOption = ref('BARA')
@@ -84,19 +92,20 @@ const isTimeDisabled = computed(() => {
 const isAgeOx = ref(false)
 const isTimeOx = ref(false)
 
-
-// watch(graphOption, () => {
-//   yearOption.value = null
-//   oxOption.value = null
-//   residencyOption.value = null
-// })
-
-
-
-const options = ref({
+const barChartoptions = ref({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
+    title: {
+      display: true,
+      text: 'Studiu angajabilitate medii de rezidenta'
+    },
+    datalabels: {
+      color: 'black',
+      anchor: 'start',
+      rotation: '-90',
+      align: 'end',
+    },
     zoom: {
       zoom: {
         wheel: {
@@ -116,30 +125,70 @@ const options = ref({
 
 })
 
+const lineChartOptions = ref({
+  layout: {
+    padding: {
+      right: 180
+    }
+  },
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    datalabels: {
+      color: 'black',
+      anchor: 'end',
+      align: 'right',
+      color: chart => {
+        return chart.dataset.backgroundColor
+      },
+      formatter: function (value, context) {
+        console.log()
+        if (context.dataIndex === context.dataset.data.length - 1) {
+          return value + " " + context.dataset.label
+        } else {
+          return value
+        }
+      }
+    },
+    title: {
+      display: true,
+      text: 'Studiu angajabilitate medii de rezidenta'
+    },
+    zoom: {
+      zoom: {
+        wheel: {
+          enabled: true,
+        },
+        pan: {
+          enabled: true
+        },
+        drag: {
+          enabled: true,
+          mode: 'x'
+        },
+        mode: 'xy',
+      }
+    }
+  },
+})
 
 const chartData = computed(() => ({
   labels: labels.value,
   datasets: datasets.value
 }));
 
-
-
 onMounted(async () => {
-  const test = await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
-  if (oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOx(test)
+  for (let i = 0; i < 50; i++) {
+    colorDict.value.push('#' + randomColor())
   }
-  if (oxOption.value === 'GRUPE VARSTA') {
-    ageOx(test)
-  }
+  const test = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+  ageOx(test)
+
 })
 
 
 function educationOx(queryResponse) {
-  while (labels.value.length) {
-
-    labels.value.pop()
-  }
+  labels.value.length = 0
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))])
   const ageValues = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
@@ -151,10 +200,7 @@ function educationOx(queryResponse) {
 }
 
 function ageOx(queryResponse) {
-
-  while (labels.value.length) {
-    labels.value.pop()
-  }
+  labels.value.length = 0
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.ageNavigation.age))])
   const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
@@ -166,27 +212,28 @@ function ageOx(queryResponse) {
 }
 
 function timeOx(queryResponse) {
-
-  while (labels.value.length) {
-    labels.value.pop()
-  }
+  labels.value.length = 0
   datasets.value.length = 0
   labels.value = [...yearOptions.value]
-  console.log(queryResponse)
   const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
   const ageGroups = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
   const total = educationLevels.length * ageGroups.length;
   for (let i = 0; i < educationLevels.length; i++) {
     for (let j = 0; j < ageGroups.length; j++) {
-      datasets.value.push({ data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i] && x.ageNavigation.age === ageGroups[j]).map(x => x.val), label: educationLevels[i] + " " + ageGroups[j], hidden: true })
+      datasets.value.push({
+        data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i] && x.ageNavigation.age === ageGroups[j]).map(x => x.val),
+        label: educationLevels[i] + " " + ageGroups[j],
+        hidden: true,
+        backgroundColor: colorDict.value[i * educationLevels.length + j],
+        borderColor: colorDict.value[i * educationLevels.length + j]
+      })
     }
   }
   isTimeOx.value = true
 }
 
 async function fetchData() {
-  console.log(isTimeDisabled.value)
-  const test = isTimeDisabled.value ? await getRegionalData('', 'T', residencyOption.value, 'line') : await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
+  const test = isTimeDisabled.value ? await getRegionalData('', '', 'T', residencyOption.value, 'line') : await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
   if (oxOption.value === 'NIVELUL EDUCATIEI') {
     educationOx(test)
   }
@@ -194,13 +241,17 @@ async function fetchData() {
     ageOx(test)
   }
   if (oxOption.value === 'TIMP') {
-
     timeOx(test)
   }
 }
 
 function resetZoom() {
-  barChart.value.chartInstance.resetZoom()
+  chart.value.chartInstance.resetZoom()
+}
+
+function downloadAsPdf() {
+  const exp = new Exporter([document.getElementById("chart")])
+  exp.export_pdf().then((pdf) => pdf.save(`EmployabilityCaseStudy${oxOption.value}_${residencyOption.value}_${yearOption.value}.pdf`));
 }
 
 </script>

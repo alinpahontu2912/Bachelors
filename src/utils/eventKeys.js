@@ -5,5 +5,7 @@ export const EVENT_KEYS = {
   PASSWORD_CHANGE: 'changePassword',
   OPEN_ANNOUNCEMENT: 'openAnnouncement',
   ERROR: 'actionError',
-  SUCCESS: 'success'
+  SUCCESS: 'success',
+  CHANGE_REGIONAL_FILTERS: 'changeRegionalFilters',
+  CHANGE_EUROPE_FILTERS: 'changeEuropeFilters'
 }

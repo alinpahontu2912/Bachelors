@@ -85,7 +85,7 @@ function createDataSets(queryResponse) {
 
 
 onMounted(async () => {
-  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
+  const test = await getEuropeanData(yearOption.value, '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
   createDataSets(test)
   createMapLayer()
 })
@@ -160,7 +160,7 @@ const createMapLayer = () => {
 }
 
 async function refresh() {
-  const test = await getEuropeanData(yearOption.value, sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
+  const test = await getEuropeanData(yearOption.value, '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
   createDataSets(test)
   map.remove()
   if (compareOption.value === 'TARA') {

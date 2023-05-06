@@ -39,7 +39,7 @@ export default function() {
       case 'UNIVERSITAR':
         return 7
       default:
-        return 8
+        return -1
     }
   }
 
@@ -53,10 +53,13 @@ export default function() {
     return (result)
 }
 
+const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
+
   return {
     getAgeId,
     getEducationId,
-    generateYearQuarters
+    generateYearQuarters,
+    randomColor
   }
 
 }

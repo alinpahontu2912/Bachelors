@@ -1,31 +1,36 @@
 <template>
   <div class="fit column wrap content-center">
     <div class="rowContainer row ">
-      <div class="row col-3 q-pa-md content-center justify-evenly">
+      <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="sexOption" label="Sex" :options="sexOptions" style="width: 250px"
           behavior="menu" />
       </div>
-      <div class="row col-3 q-pa-md content-center justify-evenly">
+      <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="ageOption" label="Age" :options="ageOptions" style="width: 250px"
           behavior="menu" />
       </div>
-      <div class="row col-3 q-pa-md content-center justify-evenly">
+      <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="educationOption" label="Education" :options="educatonOptions"
           style="width: 250px" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="resetZoom" :loading="loading">
+        <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
           Reset Zoom
         </q-btn>
       </div>
-      <div class="row col-1 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="fetchData" :loading="loading">
+      <div class="row col-2 q-pa-md content-center justify-evenly">
+        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
           Reload
+        </q-btn>
+      </div>
+      <div class="row col-2 q-pa-md content-center justify-evenly">
+        <q-btn class="q-pa-md fit" color="teal" @click="downlaodAsPdf">
+          Download
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
-      <LineChart :chartData="testData" :options="options" ref="lineChart" style="width: 90vw;" />
+      <LineChart id="chart" :chartData="testData" :options="options" ref="lineChart" style="width: 90vw;" />
     </div>
   </div>
 </template>
@@ -34,27 +39,34 @@
 
 import { LineChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { computed, ref, onMounted } from 'vue';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
-import { colorDict } from 'src/utils/CountryColours'
-import Test from 'src/utils/Test';
+import Exporter from "vue-chartjs-exporter";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import utilities from 'src/utils/utilities.js'
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
+Chart.register(ChartDataLabels);
 
 const { getEuropeanData } = useQuery()
-const { getNextPoint } = Test()
+const { randomColor, getAgeId, getEducationId } = utilities()
 const sexOptions = ref(['T'])
 const ageOptions = ref(['15-24'])
 const educatonOptions = ref(['0-2'])
 const ageOption = ref('15-24')
 const sexOption = ref('T')
 const educationOption = ref('0-2')
-
+const colorDict = ref([])
 const labels = ref([])
 const datasets = ref([])
 const lineChart = ref(null)
 const options = ref({
+  layout: {
+    padding: {
+      right: 80
+    }
+  },
   spanGaps: true,
   scales: {
     x: {
@@ -64,12 +76,35 @@ const options = ref({
       }
     }
   },
+
   parsing: {
     xAxisKey: 'x',
     yAxisKey: 'y',
     parsing: false
   },
   plugins: {
+    responsive: true,
+    maintainAspectRatio: false,
+    title: {
+      display: true,
+      text: 'Employment Rate EU'
+    },
+    datalabels: {
+      color: 'black',
+      anchor: 'end',
+      align: 'right',
+      color: chart => {
+        return chart.dataset.backgroundColor
+      },
+      formatter: function (value, context) {
+        console.log(context)
+        if (context.dataIndex === context.dataset.data.length - 1) {
+          return value.y + " " + context.dataset.label
+        } else {
+          return value.y
+        }
+      }
+    },
     legend: {
       display: true
     },
@@ -96,8 +131,11 @@ const testData = computed(() => ({
 }));
 
 onMounted(async () => {
-  const test = await getEuropeanData('', 'T', 1, 1, 'line');
-  createDataSets(Object.keys(test), Object.values(test))
+  for (let i = 0; i < 50; i++) {
+    colorDict.value.push('#' + randomColor())
+  }
+  const response = await getEuropeanData('', '', sexOption.value, 1, 1, 'line');
+  createDataSets(Object.keys(response), Object.values(response))
 })
 
 function createDataSets(countries, data) {
@@ -106,6 +144,8 @@ function createDataSets(countries, data) {
     datasets.value.push({
       label: countries[i],
       data: data[i].map(element => { return { x: element.key, y: element.value } }),
+      backgroundColor: colorDict.value[i],
+      borderColor: colorDict.value[i],
       hidden: true,
     })
   }
@@ -115,5 +155,14 @@ function resetZoom() {
   lineChart.value.chartInstance.resetZoom()
 }
 
+async function fetchData() {
+  const response = await getEuropeanData('', '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'line');
+  createDataSets(Object.keys(response), Object.values(response))
+}
+
+function downlaodAsPdf() {
+  const exp = new Exporter([document.getElementById("chart")])
+  exp.export_pdf().then((pdf) => pdf.save("EuEmploymentRate.pdf"));
+}
 
 </script>

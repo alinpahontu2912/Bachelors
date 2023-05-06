@@ -14,10 +14,14 @@ const routes = [
       { path: 'europe/barChart', component: () => import('src/pages/BarChart.vue') , meta: {requiresAuth: false, requiresAdmin: false}},
       { path: 'europe/lineGraph', component:() => import('src/pages/EuropeLineGraph.vue'), meta: {requiresAuth: false, requiresAdmin: false} },
       { path: 'europe/map', component:() => import('src/pages/EuropeMap.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
+      { path: 'europe/table', component:() => import('src/pages/EuropeTable.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
       { path: 'romania/map', component:() => import('src/pages/RomaniaMap.vue'), meta: {requiresAuth: true, requiresAdmin: false} },
       { path: 'romania/countyBarChart', component:() => import('src/pages/RomaniaCountyPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
       { path: 'romania/lineGraph', component:() => import('src/pages/RomaniaLineGraphPage.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
       { path: 'romania/reportGenerator', component:() => import('src/pages/RomaniaReportGenerator.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+      { path: 'romania/table/county', component:() => import('src/pages/RomaniaCountyTable.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+      { path: 'romania/table/residencyArea', component:() => import('src/pages/RomaniaResidencyTable.vue'), meta: {requiresAuth: true, requiresAdmin: true} },
+
 
     ]
   },
