@@ -6,12 +6,12 @@
           style="width: 250px;" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="tal" filled v-model="oxOption" label="Axa OX" :options="oxOptions" style="width: 250px;"
+        <q-select color="tal" filled v-model="oxOption" label="RAPORT" :options="oxOptions" style="width: 250px;"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="residencyOption" label="Mediu de Rezidenta" :options="residencyOptions"
-          style="width: 250px;" behavior="menu" />
+          style="width: 250px;" behavior="menu" :disable="isResidencyDisabled" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="yearOption" label="Trimestru" :options="yearOptions" style="width: 250px;"
@@ -36,15 +36,13 @@
     </div>
     <div class="q-pa-md">
       <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
-        style="height: 500px; width: 95vw;" v-if="isTimeOx" />
-      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
-        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx && isBarChartSelected" />
-      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
-        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx && isBarChartSelected" />
+        style="height: 500px; width: 95vw;" v-if="isTimeOx && !isLineDifference" />
       <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
-        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx && !isBarChartSelected" />
-      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
-        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx && !isBarChartSelected" />
+        style="height: 500px; width: 95vw;" v-if="isTimeOx && isLineDifference" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx" />
 
     </div>
   </div>
@@ -79,18 +77,36 @@ const graphOption = ref('BARA')
 const oxOption = ref('GRUPE VARSTA')
 const residencyOptions = ref(['URBAN', 'RURAL'])
 const residencyOption = ref('URBAN')
+
+
+
 const oxOptions = computed(() => {
-  return graphOption.value == 'LINIAR' ? ['NIVELUL EDUCATIEI', 'GRUPE VARSTA', 'TIMP'] : ['NIVELUL EDUCATIEI', 'GRUPE VARSTA']
+  return graphOption.value == 'LINIAR' ? ['NR. PERSOANE ANGAJATE', 'DIFERENTA MEDIU URBAN - RURAL'] : ['COMPARATIE LA NIVELUL EDUCATIEI', 'COMPARATIE PE GRUPE VARSTA']
 })
 const isBarChartSelected = computed(() => {
   return graphOption.value == 'BARA' ? true : false
 })
 const isTimeDisabled = computed(() => {
-  return graphOption.value == 'LINIAR' && oxOption.value == 'TIMP'
+  return graphOption.value == 'LINIAR'
+})
+
+const isResidencyDisabled = computed(() => {
+  return oxOption.value == 'DIFERENTA MEDIU URBAN - RURAL'
+})
+
+watch(() => oxOptions.value, () => {
+  oxOption.value = null
+})
+
+watch(() => graphOption.value, () => {
+  if (graphOption.value == 'LINIAR') {
+    yearOption.value = null
+  }
 })
 
 const isAgeOx = ref(false)
 const isTimeOx = ref(false)
+const isLineDifference = ref(false)
 
 const barChartoptions = ref({
   responsive: true,
@@ -128,6 +144,7 @@ const barChartoptions = ref({
 const lineChartOptions = ref({
   layout: {
     padding: {
+      left: 180,
       right: 180
     }
   },
@@ -217,7 +234,6 @@ function timeOx(queryResponse) {
   labels.value = [...yearOptions.value]
   const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
   const ageGroups = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
-  const total = educationLevels.length * ageGroups.length;
   for (let i = 0; i < educationLevels.length; i++) {
     for (let j = 0; j < ageGroups.length; j++) {
       datasets.value.push({
@@ -232,16 +248,43 @@ function timeOx(queryResponse) {
   isTimeOx.value = true
 }
 
+function gapOx(queryResponse) {
+  labels.value.length = 0
+  datasets.value.length = 0
+  labels.value = [...yearOptions.value]
+  const educationLevels = [...new Set(queryResponse.map(x => x.education))]
+  const ageGroups = [...new Set(queryResponse.map(x => x.age))]
+  for (let i = 0; i < educationLevels.length; i++) {
+    for (let j = 0; j < ageGroups.length; j++) {
+      datasets.value.push({
+        data: queryResponse.filter(x => x.education === educationLevels[i] && x.age === ageGroups[j]).map(x => x.value),
+        label: educationLevels[i] + " " + ageGroups[j],
+        hidden: true,
+        backgroundColor: colorDict.value[i * educationLevels.length + j],
+        borderColor: colorDict.value[i * educationLevels.length + j]
+      })
+    }
+  }
+  isTimeOx.value = true
+}
+
 async function fetchData() {
-  const test = isTimeDisabled.value ? await getRegionalData('', '', 'T', residencyOption.value, 'line') : await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
-  if (oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOx(test)
+  if (oxOption.value === 'COMPARATIE LA NIVELUL EDUCATIEI') {
+    const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+    educationOx(response)
   }
-  if (oxOption.value === 'GRUPE VARSTA') {
-    ageOx(test)
+  if (oxOption.value === 'COMPARATIE PE GRUPE VARSTA') {
+    const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+    ageOx(response)
   }
-  if (oxOption.value === 'TIMP') {
-    timeOx(test)
+  if (oxOption.value === 'NR. PERSOANE ANGAJATE') {
+    const response = await getRegionalData('', '', 'T', residencyOption.value, 'line')
+    timeOx(response)
+  }
+  if (oxOption.value === 'DIFERENTA MEDIU URBAN - RURAL') {
+    const response = await getRegionalData('', '', 'T', 'GAP', 'line')
+    console.log(response)
+    gapOx(response)
   }
 }
 

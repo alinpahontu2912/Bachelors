@@ -8,7 +8,7 @@
             {{ click ? `${min} - ${max}` : `${min} - ${average} - ${max}` }}
           </q-tooltip>
         </div>
-        <div class="row col-1 q-pa-md content-center justify-evenly">
+        <div class="row col-2 q-pa-md content-center justify-evenly">
           <q-select color="teal" filled v-model="yearOption" label="AN" :options="yearOptions" style="width: 250px"
             behavior="menu" />
         </div>
@@ -28,11 +28,6 @@
           <q-select color="teal" filled v-model="compareOption" label="COMPARATIE" :options="compareOptions"
             style="width: 250px" behavior="menu" />
         </div>
-        <div class="row col-1 q-pa-md content-center justify-evenly">
-          <q-btn class="q-pa-md fit" color="teal" @click="refresh">
-            Reload
-          </q-btn>
-        </div>
       </div>
     </div>
     <div id="mapContainer" class="row" />
@@ -40,7 +35,7 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeMount, ref } from 'vue'
+import { onMounted, onBeforeMount, ref, watch } from 'vue'
 import { europeGeoJson } from 'src/assets/EuropeGeoJson'
 import utilities from 'src/utils/utilities.js'
 import 'leaflet/dist/leaflet.css'
@@ -174,6 +169,22 @@ async function refresh() {
 
   createMapLayer()
 }
+
+watch(() => yearOption.value, () => {
+  refresh()
+})
+watch(() => sexOption.value, () => {
+  refresh()
+})
+watch(() => compareOption.value, () => {
+  refresh()
+})
+watch(() => ageOption.value, () => {
+  refresh()
+})
+watch(() => educationOption.value, () => {
+  refresh()
+})
 
 </script>
 
