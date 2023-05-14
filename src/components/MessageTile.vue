@@ -1,24 +1,23 @@
 <template>
   <div class="rowContainer row col-12 q-pa-md">
     <q-card class="row rowContainer col-12 bg-grey-3">
-      <q-item class="rowContainer row col-12 bg-teal-7">
-        <q-item-section avatar class="columnContainer row item-medium content-center align-center justify-center col-2 ">
-          <div class="col-12 item-medium q-pa-sm">
+      <q-item class="rowContainer row col-12 bg-teal-7" style="height: 350px;">
+        <q-item-section avatar class=" columnContainer row item-medium content-center align-center justify-center col-2 ">
+          <div class=" col-12 item-medium q-pa-sm">
             <q-icon name="account_circle" size="5em" color="white">
               <q-tooltip>
-                {{ request.email }}
+                {{ message.email }}
               </q-tooltip>
             </q-icon>
           </div>
-          <div class="col-12 item-medium text-bold q-pa-sm text-white">{{ request.requestTime }}</div>
+          <div class="col-12 item-medium text-bold q-pa-sm text-white">{{ message.requestTime }}</div>
         </q-item-section>
         <q-item-section
           class="columnContainer col-8 bg-white row item-medium content-center  align-center justify-around">
-          <div class="row col-12 q-pa-md text-bold text-italic">Motivation</div>
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
-          flex-direction: column; max-height: 200px;">
+          flex-direction: column; min-height: 300px; max-height: 300px;">
             <div class="q-pa-xs">
-              {{ request.motivation }}
+              {{ message.value }}
             </div>
           </div>
         </q-item-section>
@@ -26,12 +25,10 @@
           <div class="row col-12 item-medium  q-pa-md">
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
-                <q-btn :disable="request.status != 1" class="row col-12" color="green" label="ACCEPT"
-                  @click="solveRequest(request.id, 2)" />
+                <q-btn class="row col-12" color="green" label="MARK AS READ" @click="sendMessage(message.id, '')" />
               </q-item>
               <q-item>
-                <q-btn :disable="request.status != 1" class="row col-12" color="red" label="REJECT"
-                  @click="solveRequest(request.id, 3)" />
+                <q-btn class="row col-12" color="red" label="REPLY" @click="dialog = !dialog" />
               </q-item>
             </q-list>
           </div>
@@ -41,12 +38,20 @@
 
     </q-card>
   </div>
+  <ReplyDialog :messageId="message.id" v-model="dialog" />
 </template>
 <script setup>
 import useQuery from 'src/compositionFunctions/useQuery';
-const { solveRequest } = useQuery();
+import { ref } from 'vue'
+import ReplyDialog from './ReplyDialog.vue';
+
+const { sendMessage } = useQuery()
+
+const emailContent = ref('')
+const dialog = ref(false)
+
 const props = defineProps({
-  request: Object
+  message: Object
 })
 </script>
 

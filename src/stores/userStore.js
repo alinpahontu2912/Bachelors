@@ -10,18 +10,20 @@ export const userStore = defineStore('user', () => {
   const userToken = ref(retrieveUserData())
 
   async function checkUserAlreadySignedIn() {
-    if (userToken.value){
-    const decoded = jwt_decode(userToken.value);
-    if (Date(decoded.expiry) < new Date()) {
-      const response = await refreshUserToken()
-      if (response) {
-        userToken.value = response
-        saveUserData(response)
-      }
-    }
-  }
-    return userToken.value
-  }
+  //   if (userToken.value){
+  //     console.log(userToken.value)
+  //   const decoded = jwt_decode(userToken.value);
+  //   if (Date(decoded.expiry) < new Date()) {
+  //     const response = await refreshUserToken()
+  //     if (response) {
+  //       userToken.value = response
+  //       saveUserData(response)
+  //     }
+  //   }
+  // }
+  //   return userToken.value
+return false;
+}
 
   async function signUpRequest(email, password, jobId, remainSignedIn) {
     const response = await createUser(email, password, jobId)

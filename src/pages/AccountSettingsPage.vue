@@ -1,6 +1,6 @@
 <template>
-  <div class="rowContainer row">
-    <q-card class="col-11" style="height: 600px">
+  <div class="rowContainer row q-pa-md">
+    <q-card class="col-12" style="height: 80vh">
       <q-card-section class="rowContainer row">
         <q-item class="row justify-center space-around col-7" q-pa-sm>
           <q-list bordered separator class="columnContainer row space-around col-12">
@@ -31,7 +31,6 @@
 
                 <q-item-label>{{ userData.canDownload }}<q-tooltip>
                     For download purposes only</q-tooltip></q-item-label>
-
               </q-item-section>
             </q-item>
           </q-list>
@@ -52,7 +51,7 @@
           </div>
         </q-item>
       </q-card-section>
-      <q-card-section class="columnContainer row ">
+      <q-card-section class="columnContainer row q-pt-lg">
         <q-item class="col-12" q-pa-sm>
           <q-list bordered separator class="row col-12 bg-secondary text-white">
             <q-item style="height: 80px;" class="col-12">
@@ -135,7 +134,7 @@ function openNewPasswordForm() {
 
 function triggerLogout() {
   logout()
-  router.push('/login')
+  router.push('/')
 }
 
 onMounted(() => {

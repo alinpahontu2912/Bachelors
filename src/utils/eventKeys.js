@@ -7,5 +7,6 @@ export const EVENT_KEYS = {
   ERROR: 'actionError',
   SUCCESS: 'success',
   CHANGE_REGIONAL_FILTERS: 'changeRegionalFilters',
-  CHANGE_EUROPE_FILTERS: 'changeEuropeFilters'
+  CHANGE_EUROPE_FILTERS: 'changeEuropeFilters',
+  EMAIL_CONTENT: 'emailContent'
 }

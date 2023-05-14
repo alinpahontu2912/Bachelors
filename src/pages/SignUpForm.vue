@@ -71,7 +71,7 @@ async function signUp() {
 }
 
 function routeToLogin() {
-  router.push('/login')
+  router.push('/')
 }
 </script>
 <style>

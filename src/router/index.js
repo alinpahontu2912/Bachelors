@@ -27,7 +27,7 @@ export default route(function ({ /*store , ssrContext */}) {
   const store = userStore()
 
   if (to.meta.requiresAuth && !store.isUserAuth()) {
-    next('login');
+    next('');
   } else if ( to.meta.requiresAdmin && !store.isUserAdmin() ) {
     return false;
   }

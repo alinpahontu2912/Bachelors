@@ -31,6 +31,7 @@
   <ErrorDialog />
 </template>
 <script setup>
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 import { onMounted, ref, inject } from 'vue';
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
@@ -45,6 +46,7 @@ const loginData = ref({ email: '', password: '' })
 const bus = inject('bus')
 
 async function logIn() {
+  console.log(loginData.value)
   const data = await loginRequest(loginData.value.email, loginData.value.password, saveCredentials.value)
   loginData.value = { email: '', password: '' }
   if (data) {

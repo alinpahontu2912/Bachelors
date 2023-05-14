@@ -11,7 +11,7 @@
   </div>
   <q-infinite-scroll @load="onLoad" :offset="250" ref="scroll">
     <div class="row fit ">
-      <RequestTile v-for="(item, index) in items" :key="index" :request="item" />
+      <MessageTile v-for="(item, index) in items" :key="index" :message="item" />
     </div>
     <template v-slot:loading v-if="awaitData">
       <div class="row justify-center q-my-md">
@@ -21,36 +21,34 @@
   </q-infinite-scroll>
 </template>
 <script setup>
-import RequestTile from 'src/components/RequestTile.vue';
+import MessageTile from 'src/components/MessageTile.vue';
 import { ref, watch } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
 
-const { getAllRequests } = useQuery()
+const { getAllMessages } = useQuery()
 const dateOptions = ref(['ASC', 'DESC'])
 const dateOption = ref('DESC')
-const statusOptions = ref(['ALL', 'ACCEPTED', 'REJECTED', 'PROCESSING'])
+const statusOptions = ref(['ALL', 'REPLIED', 'NOT REPLIED'])
 const statusOption = ref('ALL')
 const items = ref([])
 const scroll = ref(null)
 const awaitData = ref(false)
 
-function getStatusId() {
-  switch (statusOption.value) {
-    case 'ALL':
-      return 0
-    case 'PROCESSING':
-      return 1
-    case 'ACCEPTED':
-      return 2
-    case 'REJECTED':
-      return 3
-  }
-}
-
 async function reloadData() {
   items.value.length = 0
   scroll.value.reset()
   scroll.value.trigger()
+}
+
+function getStatusId() {
+  switch (statusOption.value) {
+    case 'ALL':
+      return -1
+    case 'REPLIED':
+      return 1
+    case 'NOT REPLIED':
+      return 0
+  }
 }
 
 watch(() => dateOption.value, async () => {
@@ -63,13 +61,13 @@ watch(() => statusOption.value, async () => {
 
 
 async function onLoad(index, done) {
-  const newEntries = await getAllRequests(index, dateOption.value, getStatusId(statusOption.value), done, items.value)
+  const newEntries = await getAllMessages(index, dateOption.value, getStatusId(statusOption.value), done, items.value)
   awaitData.value = newEntries > 0 ? true : false
 }
 
 
 </script>
-<style>
+<style >
 .columnContainer {
   display: flex;
   flex-wrap: nowrap;

@@ -53,6 +53,24 @@ function createGetRequestQuery(sort, status, page) {
   return target.href
 }
 
+function createGetMessagesQuery(sort, status, page) {
+  const target = new URL(endpoint + '/contact')
+  const params = new URLSearchParams()
+  params.set('status', status)
+  params.set('sort', sort)
+  params.set('page', page)
+  target.search = params.toString()
+  return target.href
+}
+
+function createReplyMessageQuery(messageId) {
+  const target = new URL(endpoint + '/contact/' + messageId)
+  const params = new URLSearchParams()
+  target.search = params.toString()
+  return target.href
+}
+
+
 function createGetAnnouncementQuery(sort, type, page) {
   const target = new URL(endpoint + '/announcements')
   const params = new URLSearchParams()
@@ -72,6 +90,14 @@ function createEuropeanDataQuery(startTime, endTime, sex, age, education, chartT
   params.set('chartType', chartType)
   params.set('startTime', startTime)
   params.set('endTime', endTime)
+  target.search = params.toString()
+  return target.href
+}
+
+function createSolveRequestQuery(requestId, statusId){
+  const target = new URL(endpoint + '/solveRequest/' + requestId)
+  const params = new URLSearchParams()
+  params.set('status', statusId)
   target.search = params.toString()
   return target.href
 }
@@ -227,6 +253,17 @@ export default function() {
     done()
     return data.length
   }
+
+  async function getAllMessages(index, sort, type, done, container) {
+    const response = await axiosInstance.get(createGetMessagesQuery(sort, type, index))
+    const data = response.data
+    for (let i = 0; i < data.length; i++) {
+      container.push({ id: data[i].id, requestTime: new Date(data[i].creationTime).toDateString(), value: data[i].value, status: data[i].reply, email: data[i].user.email })
+    }
+    done()
+    return data.length
+  }
+
    async function getAllAnnouncements(index, sort, status, done, container) {
     const response = await axiosInstance.get(createGetAnnouncementQuery(sort, status, index))
     const data = response.data
@@ -247,27 +284,29 @@ export default function() {
     return jobs
   }
 
-  async function testData() {
-     const target = new URL('http://localhost:7051/api/lfsdata')
-    const params = new URLSearchParams()
-    params.set('sex', 'T')
-    params.set('age', '1')
-    params.append('countryCode', 'RO')
-    params.append('countryCode', 'BG')
-    target.search = params.toString()
-    console.log(target.search)
-    const response = await axiosInstance.get(target.href)
-    const data = response.data
-    const eurodata = []
-    for (let i = 0; i < data.length; i++) {
-      eurodata.push(new EurostatData(...Object.values(data[i])))
+
+  async function solveRequest(requestId, statusId) {
+    try {
+      const response = await axiosInstance.put(createSolveRequestQuery(requestId, statusId))
+      const data = response.data
+    } catch (error) {
+      return null
     }
-    return eurodata
+  }
+
+  async function sendMessage(messageId, value) {
+    try {
+      const response = await axiosInstance.post(createReplyMessageQuery(messageId), {
+        value
+      })
+      const data = response.data
+    } catch (error) {
+      return null
+    }
   }
 
   return {
     getUserJobs,
-    testData,
     attemptLogIn,
     createUser,
     refreshUserToken,
@@ -280,6 +319,10 @@ export default function() {
     getRegionalData,
     getAdminStats,
     getNewUserStats,
-    getAvailableTime
+    getAvailableTime,
+    solveRequest,
+    getAllMessages,
+    createGetMessagesQuery,
+    sendMessage
   }
 }

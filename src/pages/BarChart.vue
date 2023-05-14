@@ -38,9 +38,7 @@
     </div>
   </div>
 </template>
-
 <script setup>
-
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import { computed, ref, onMounted, } from 'vue';
@@ -49,9 +47,10 @@ import useQuery from 'src/compositionFunctions/useQuery';
 import utilities from 'src/utils/utilities.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
-Chart.register(...registerables);
-Chart.register(zoomPlugin);
-Chart.register(ChartDataLabels);
+
+Chart.register(...registerables)
+Chart.register(zoomPlugin)
+Chart.register(ChartDataLabels)
 
 const { getEuropeanData } = useQuery()
 const { getAgeId, getEducationId, generateYearQuarters } = utilities()

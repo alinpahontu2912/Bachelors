@@ -16,6 +16,7 @@
     "@tensorflow/tfjs": "^4.4.0",
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "chartjs-plugin-sort": "^0.1.1",
     "chartjs-plugin-zoom": "^2.0.1",
     "core-js": "^3.6.5",
     "d3": "^7.8.4",
