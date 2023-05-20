@@ -111,8 +111,6 @@ function filterResults(data) {
 bus.on(EVENT_KEYS.CHANGE_REGIONAL_FILTERS, async (data) => {
   queryParams.value = data
   await onRequest()
-  // const response = await getRegionalData(queryParams.value.startYear, queryParams.value.endYear, '', queryParams.value.residencyOption, 'table');
-  // rows.value = filterResults(response)
 })
 
 

@@ -5,7 +5,6 @@ import { User } from 'src/models/User'
 import { Requests } from 'src/models/Requests'
 import useLocalStorage from './useLocalStorage'
 import { Feedback } from 'src/models/Feedback'
-import { Announcement } from 'src/models/Announcement'
 const { retrieveUserData } = useLocalStorage()
 const endpoint = 'http://localhost:7051/api'
 
@@ -125,6 +124,16 @@ function createGetAvailableTimeQuery(setName) {
 
 export default function() {
 
+  async function getCountryNames() {
+    try {
+      const response = await axiosInstance.get(endpoint + '/countries')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
 
   async function getAdminStats(){
     try {
@@ -204,7 +213,7 @@ export default function() {
 
   async function refreshUserToken(){
     try {
-      const response = await axiosInstance.get(endpoint + '/refresh')
+      const response = await axiosInstance.get(endpoint + '/users/refresh')
       if (response.status === 200) {
         return response.data
       }
@@ -323,6 +332,7 @@ export default function() {
     solveRequest,
     getAllMessages,
     createGetMessagesQuery,
-    sendMessage
+    sendMessage,
+    getCountryNames
   }
 }

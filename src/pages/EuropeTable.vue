@@ -29,7 +29,8 @@ const queryParams = ref({
   endYear: '',
   sex: [],
   ageGroup: [],
-  educationOptions: []
+  educationOptions: [],
+  countries: []
 })
 const triggered = ref(false)
 const rows = ref([])
@@ -105,21 +106,17 @@ function filterResults(data) {
   let filterData = data
 
   console.log(queryParams.value)
-  console.log(data)
   if (queryParams.value.educationOptions.length != 0) {
-    console.log('ducatie1', filterData)
     filterData = filterData.filter(element => queryParams.value.educationOptions.includes(element.educationNavigation.educationLevel))
-    console.log('ducatie2', filterData)
   }
   if (queryParams.value.ageGroup.length != 0) {
-    console.log('varsta1', filterData)
     filterData = filterData.filter(element => queryParams.value.ageGroup.includes(element.ageNavigation.age))
-    console.log('varsta2', filterData)
   }
   if (queryParams.value.sex.length != 0) {
-    console.log('sex1', filterData)
     filterData = filterData.filter(element => queryParams.value.sex.includes(element.sex))
-    console.log('sex2', filterData)
+  }
+  if (queryParams.value.countries.length != 0) {
+    filterData = filterData.filter(element => queryParams.value.countries.includes(element.countryCodeNavigation.name))
   }
 
   return filterData

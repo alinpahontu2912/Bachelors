@@ -37,15 +37,18 @@
   </q-dialog>
 </template>
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { EVENT_KEYS } from 'src/utils/eventKeys'
+import useQuery from 'src/compositionFunctions/useQuery'
 
+const { getCountryNames } = useQuery()
 const bus = inject('bus')
 const yearOptions = ref(['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4'])
 const ageOptions = ref(['15-24', '25-54', '55-64'])
 const educationOptions = ref(['0-2', '3-4', '5-8'])
 const sexOptions = ref(['M', 'F', 'T'])
 const countryOptions = ref([])
+
 
 const queryParams = ref({
   startYear: '',
@@ -66,6 +69,10 @@ function sendQueryParams() {
   params.sex = queryParams.value.sex == null ? [] : queryParams.value.sex
   bus.emit(EVENT_KEYS.CHANGE_EUROPE_FILTERS, params)
 }
+
+onMounted(async () => {
+  countryOptions.value = await getCountryNames()
+})
 
 </script>
 <style scoped>

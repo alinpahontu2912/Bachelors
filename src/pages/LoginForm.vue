@@ -39,7 +39,7 @@ import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import PasswordInput from 'src/components/PasswordInput.vue';
 import ErrorDialog from 'src/components/ErrorDialog.vue';
 
-const { loginRequest, checkUserAlreadySignedIn, isUserAdmin } = userStore()
+const { loginRequest, checkUserAlreadySignedIn } = userStore()
 const router = useRouter()
 const saveCredentials = ref(true)
 const loginData = ref({ email: '', password: '' })

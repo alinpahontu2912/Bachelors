@@ -1,6 +1,3 @@
-
-import SuccessDialog from './SuccessDialog.vue';
-
 <template>
   <q-dialog v-model="triggered">
     <q-card class="row">
@@ -81,3 +78,30 @@ async function sendQuery() {
 
 
 </script>
+<style>
+.columnContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.rowContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.item-small {
+  flex-grow: 1;
+}
+
+.item-medium {
+  flex-grow: 3;
+
+}
+</style>

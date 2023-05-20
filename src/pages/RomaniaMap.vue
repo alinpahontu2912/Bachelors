@@ -28,8 +28,10 @@ import { romaniaGeoJson } from 'src/assets/RomaniaGeojson'
 import 'leaflet/dist/leaflet.css'
 import useQuery from 'src/compositionFunctions/useQuery'
 import L from 'leaflet'
+import 'leaflet-easyprint'
 import * as d3 from 'd3'
 import { euAverage } from 'src/utils/euAverage.js'
+import { euclideanNorm } from '@tensorflow/tfjs'
 let map = null
 const color = ref(d3.scaleLinear().range(['red', 'green']))
 const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
@@ -134,6 +136,33 @@ const createMapLayer = () => {
     return layer.feature.properties.shapeName + ": " + countyValue.value.get(layer.feature.properties.shapeName); //merely sets the tooltip text
   }, { permanent: false, opacity: 1 }
   ).addTo(map);
+  L.easyPrint({
+    title: 'My awesome print button',
+    position: 'topleft',
+    sizeModes: ['A4Portrait', 'A4Landscape'],
+    hideControlContainer: false,
+    hideClasses: ['leaflet-top leaflet-left']
+
+  }).addTo(map);
+
+  var legend = L.control({ position: 'bottomright' });
+
+  legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+      grades = click.value ? [min.value, max.value] : [min.value, euAverage.get(options.value.yearOption)[options.value.sexOption], max.value],
+      colors = click.value ? [color.value(min.value), color.value(max.value)] : [euLessColor.value(min.value), 'white', euMoreColor.value(max.value)]
+
+    for (var i = 0; i < grades.length; i++) {
+      div.innerHTML +=
+        '<i class="q-pa-sm" style="background:' + colors[i] + '"><strong>' + grades[i] + '<strong></i> '
+        + '<br>' + '<br>'
+    }
+
+    return div;
+  };
+
+  legend.addTo(map);
 }
 
 watch(() => options.value.sexOption, async () => {
@@ -167,6 +196,18 @@ async function refresh() {
 </script>
 
 <style scoped>
+@media print {
+
+  html,
+  body {
+
+    display: none;
+    /* hide whole page */
+
+  }
+
+}
+
 #mapContainer {
   height: 75vh;
 }

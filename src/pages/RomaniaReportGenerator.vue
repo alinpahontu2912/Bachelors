@@ -29,7 +29,7 @@
         </q-btn>
       </div>
       <div class="row col-1 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           Download
         </q-btn>
       </div>
@@ -58,6 +58,7 @@ import useQuery from 'src/compositionFunctions/useQuery';
 import utilities from 'src/utils/utilities.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
+import { userStore } from 'src/stores/userStore';
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
@@ -65,7 +66,9 @@ Chart.register(ChartDataLabels);
 
 const { getRegionalData } = useQuery()
 const { randomColor } = utilities()
+const { canUserDownload } = userStore()
 
+const canDownload = computed(() => canUserDownload())
 const colorDict = ref([])
 const datasets = ref([])
 const chart = ref(null)
@@ -74,7 +77,7 @@ const yearOptions = ref(['2019-Q1', '2019-Q2', '2019-Q3', '2019-Q4', '2020-Q1', 
 const yearOption = ref('2020-Q1')
 const graphOptions = ref(['LINIAR', 'BARA'])
 const graphOption = ref('BARA')
-const oxOption = ref('GRUPE VARSTA')
+const oxOption = ref('COMPARATIE PE GRUPE VARSTA')
 const residencyOptions = ref(['URBAN', 'RURAL'])
 const residencyOption = ref('URBAN')
 

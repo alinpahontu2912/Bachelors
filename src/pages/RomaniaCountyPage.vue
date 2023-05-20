@@ -10,13 +10,8 @@
           Reset Zoom
         </q-btn>
       </div>
-      <!-- <div class="row col-3 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
-          Reload
-        </q-btn>
-      </div> -->
       <div class="row col-3 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           Download
         </q-btn>
       </div>
@@ -36,12 +31,16 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
+import { userStore } from 'src/stores/userStore';
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 Chart.register(ChartDataLabels);
-const { getRegionalData, getAvailableTime } = useQuery()
 
+const { getRegionalData, getAvailableTime } = useQuery()
+const { canUserDownload } = userStore()
+
+const canDownload = computed(() => canUserDownload())
 const datasets = ref([])
 const barChart = ref(null)
 const labels = ref([])

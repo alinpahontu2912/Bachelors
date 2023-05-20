@@ -70,7 +70,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 const { isUserAdmin } = userStore()
 
-console.log(isUserAdmin())
 const { locale } = useI18n({ useScope: 'global' })
 const localeOptions = ref([
   { value: 'en-US', label: 'English' },
@@ -159,6 +158,12 @@ const adminPages = [
     label: 'CERERI',
     separator: true,
     to: 'requests'
+  },
+  {
+    icon: 'mail',
+    label: 'MESAJE',
+    separator: true,
+    to: 'contact'
   },
 ]
 

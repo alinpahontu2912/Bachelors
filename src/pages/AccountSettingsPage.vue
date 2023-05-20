@@ -28,7 +28,6 @@
               </q-item-section>
               <q-item-section class="col-6">{{ $t('download_permission') }}</q-item-section>
               <q-item-section q-pa-md side class="col-4 row content-right">
-
                 <q-item-label>{{ userData.canDownload }}<q-tooltip>
                     For download purposes only</q-tooltip></q-item-label>
               </q-item-section>
@@ -56,11 +55,15 @@
           <q-list bordered separator class="row col-12 bg-secondary text-white">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>{{ $t('require_download_permissions') }}</h5>
+                <h5 v-if="!isAdmin">{{ $t('require_download_permissions') }}</h5>
+                <h5 v-else>Want to see all requests ?</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn color="white text-black" @click="openRequestDialog">
+                <q-btn v-if="!isAdmin" color="white text-black" @click="openRequestDialog">
                   {{ $t('make_request') }}
+                </q-btn>
+                <q-btn v-else color="white text-black" @click="goToRequests">
+                  GO TO REQUESTS PAGE
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -72,11 +75,15 @@
           <q-list bordered separator class="row col-12">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>{{ $t('feedback') }}</h5>
+                <h5 v-if="!isAdmin">{{ $t('feedback') }}</h5>
+                <h5 v-else>Reply to messages</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn color="teal text-white" @click="openFeedbackDialog">
+                <q-btn v-if="!isAdmin" color="teal text-white" @click="openFeedbackDialog">
                   {{ $t('leave_comment') }}
+                </q-btn>
+                <q-btn v-else color="teal text-white" @click="goToMessages">
+                  GO TO MESSAGES PAGE
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -108,17 +115,20 @@
   </div>
 </template>
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, computed } from 'vue'
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
 import NewPassworDialog from 'src/components/NewPassworDialog.vue';
 import TextAreaDialog from 'src/components/TextAreaDialog.vue';
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 
-const { logout, getAccountInfo } = userStore()
+
+const { logout, getAccountInfo, isUserAdmin } = userStore()
+const isAdmin = computed(() => { return isUserAdmin() })
 const router = useRouter()
 const bus = inject('bus')
 const userData = ref({})
+
 
 function openRequestDialog() {
   bus.emit(EVENT_KEYS.DATA_DOWNLOAD_REQUEST)
@@ -135,6 +145,14 @@ function openNewPasswordForm() {
 function triggerLogout() {
   logout()
   router.push('/')
+}
+
+function goToRequests() {
+  router.push('/solveRequests')
+}
+
+function goToMessages() {
+  router.push('/messages')
 }
 
 onMounted(() => {

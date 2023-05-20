@@ -33,7 +33,7 @@
 import { ref, onMounted, watch } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery'
 import { exportFile } from 'quasar'
-const { getRegionalData } = useQuery()
+const { getRegionalData, getAvailableTime } = useQuery()
 
 const columns = [{
   name: 'judet',
@@ -69,10 +69,10 @@ const columns = [{
   sortable: true
 }]
 
-const yearOptions = ref(['2010', '2011', '2012', '2013', '2014'])
+const yearOptions = ref([])
 const startYear = ref('')
 const endYear = ref('')
-const sexOptions = ref(['M', 'F'])
+const sexOptions = ref(['M', 'F', 'T'])
 const sexOption = ref('')
 const rows = ref([])
 const filter = ref('')
@@ -102,6 +102,7 @@ watch(() => sexOption.value, async () => {
 })
 
 onMounted(async () => {
+  yearOptions.value = (await getAvailableTime('regional')).sort()
   await tableRef.value.requestServerInteraction()
 })
 

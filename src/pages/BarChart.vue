@@ -22,13 +22,8 @@
           Reset Zoom
         </q-btn>
       </div>
-      <div class="row col-1 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
-          Reload
-        </q-btn>
-      </div>
-      <div class="row col-1 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+      <div class="row col-2 q-pa-md content-center justify-evenly">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           Download
         </q-btn>
       </div>
@@ -41,12 +36,13 @@
 <script setup>
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
-import { computed, ref, onMounted, } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
 import utilities from 'src/utils/utilities.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
+import { userStore } from 'src/stores/userStore';
 
 Chart.register(...registerables)
 Chart.register(zoomPlugin)
@@ -54,6 +50,9 @@ Chart.register(ChartDataLabels)
 
 const { getEuropeanData } = useQuery()
 const { getAgeId, getEducationId, generateYearQuarters } = utilities()
+const { canUserDownload } = userStore()
+
+const canDownload = computed(() => canUserDownload())
 const datasets = ref([])
 const barChart = ref(null)
 const labels = ref([])
@@ -130,4 +129,17 @@ function downloadAsPdf() {
   const exp = new Exporter([document.getElementById("chart")])
   exp.export_pdf().then((pdf) => pdf.save(`EUEmploymentRate${yearOption.value}_${sexOption.value}_${ageOption.value}_${educationOption.value}.pdf`));
 }
+
+watch(() => yearOption.value, () => {
+  fetchData()
+})
+watch(() => sexOption.value, () => {
+  fetchData()
+})
+watch(() => ageOption.value, () => {
+  fetchData()
+})
+watch(() => educationOption.value, () => {
+  fetchData()
+})
 </script>

@@ -33,15 +33,17 @@
   </q-dialog>
 </template>
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { EVENT_KEYS } from 'src/utils/eventKeys'
-
+import useQuery from 'src/compositionFunctions/useQuery'
 
 const bus = inject('bus')
-const yearOptions = ref(['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4'])
+const { getAvailableTime } = useQuery()
+const yearOptions = ref([])
 const ageOptions = ref(['15-24', '25-34', '35-49', '50-54', '55-59', '60-64'])
 const residencyOptions = ref(['URBAN', 'RURAL'])
 const educationOptions = ref(['PRIMAR', 'GIMNAZIU', 'LICEU', 'UNIVERSITAR'])
+
 
 const queryParams = ref({
   startYear: '',
@@ -60,6 +62,10 @@ function sendQueryParams() {
   params.ageGroup = queryParams.value.ageGroup == null ? [] : queryParams.value.ageGroup
   bus.emit(EVENT_KEYS.CHANGE_REGIONAL_FILTERS, params)
 }
+
+onMounted(async () => {
+  yearOptions.value = (await getAvailableTime('residency')).sort()
+})
 
 </script>
 <style scoped>

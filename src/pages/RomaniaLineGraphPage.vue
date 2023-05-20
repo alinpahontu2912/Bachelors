@@ -9,7 +9,7 @@
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">Reset Zoom</q-btn>
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           Download
         </q-btn>
       </div>
@@ -31,12 +31,17 @@ import useQuery from 'src/compositionFunctions/useQuery';
 import Exporter from "vue-chartjs-exporter";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import utilities from 'src/utils/utilities.js'
+import { userStore } from 'src/stores/userStore';
+
 const { randomColor } = utilities()
 const { getRegionalData, getAvailableTime } = useQuery()
+const { canUserDownload } = userStore()
+
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 Chart.register(ChartDataLabels);
 
+const canDownload = computed(() => canUserDownload())
 const colorDict = ref([])
 const datasets = ref([])
 const lineChart = ref(null)

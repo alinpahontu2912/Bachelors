@@ -10,18 +10,23 @@ export const userStore = defineStore('user', () => {
   const userToken = ref(retrieveUserData())
 
   async function checkUserAlreadySignedIn() {
-  //   if (userToken.value){
-  //     console.log(userToken.value)
-  //   const decoded = jwt_decode(userToken.value);
-  //   if (Date(decoded.expiry) < new Date()) {
-  //     const response = await refreshUserToken()
-  //     if (response) {
-  //       userToken.value = response
-  //       saveUserData(response)
-  //     }
-  //   }
-  // }
-  //   return userToken.value
+    if (userToken.value) {
+    const decoded = jwt_decode(userToken.value);
+    if (new Date(decoded.expiry).getTime() <= new Date().getTime()){
+      const response = await refreshUserToken()
+      if (response) {
+        userToken.value = response
+        saveUserData(response)
+      }
+    } else {
+      const response = await loginRequest()
+      if (response != null) {
+        userToken.value = response
+        saveUserData(response)
+      }
+    }
+  }
+    return userToken.value
 return false;
 }
 
@@ -74,6 +79,14 @@ return false;
     return false
   }
 
+  function canUserDownload() {
+    if (userToken.value) {
+      const decoded = jwt_decode(userToken.value);
+      return decoded.permissions.includes(2)
+    }
+    return false
+  }
+
   function getAccountInfo() {
     const decoded = jwt_decode(userToken.value);
     console.log(decoded)
@@ -86,5 +99,5 @@ return false;
     return decoded.userId
   }
 
-  return { userToken, signUpRequest, loginRequest, logout, checkUserAlreadySignedIn, isUserAuth, isUserAdmin, getAccountInfo, updatePassword, getUserId }
+  return { userToken, signUpRequest, loginRequest, logout, checkUserAlreadySignedIn, isUserAuth, isUserAdmin, getAccountInfo, updatePassword, getUserId, canUserDownload }
 })
