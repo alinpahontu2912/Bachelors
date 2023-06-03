@@ -14,7 +14,7 @@
         </q-item-section>
         <q-item-section
           class="columnContainer col-8 bg-white row item-medium content-center  align-center justify-around">
-          <div class="row col-12 q-pa-md text-bold text-italic">Motivation</div>
+          <div class="row col-12 q-pa-md text-bold text-italic">{{ $t('motivation') }}</div>
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
           flex-direction: column; max-height: 200px;">
             <div class="q-pa-xs">
@@ -26,11 +26,11 @@
           <div class="row col-12 item-medium  q-pa-md">
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
-                <q-btn :disable="request.status != 1" class="row col-12" color="green" label="ACCEPT"
+                <q-btn :disable="request.status != 1" class="row col-12" color="green" :label="$t('accept')"
                   @click="solveRequest(request.id, 2)" />
               </q-item>
               <q-item>
-                <q-btn :disable="request.status != 1" class="row col-12" color="red" label="REJECT"
+                <q-btn :disable="request.status != 1" class="row col-12" color="red" :label="$t('reject')"
                   @click="solveRequest(request.id, 3)" />
               </q-item>
             </q-list>

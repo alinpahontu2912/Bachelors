@@ -2,35 +2,35 @@
   <div class="fit column wrap content-center">
     <div class="rowContainer row justify-evenly">
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="graphOption" label="Tip Grafic" :options="graphOptions"
+        <q-select color="teal" filled v-model="graphOption" :label="$t('chart_type')" :options="graphOptions"
           style="width: 250px;" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="tal" filled v-model="oxOption" label="RAPORT" :options="oxOptions" style="width: 250px;"
+        <q-select color="tal" filled v-model="oxOption" :label="$t('report')" :options="oxOptions" style="width: 250px;"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="residencyOption" label="Mediu de Rezidenta" :options="residencyOptions"
+        <q-select color="teal" filled v-model="residencyOption" :label="$t('residency_area')" :options="residencyOptions"
           style="width: 250px;" behavior="menu" :disable="isResidencyDisabled" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="yearOption" label="Trimestru" :options="yearOptions" style="width: 250px;"
-          behavior="menu" :disable="isTimeDisabled" />
+        <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions"
+          style="width: 250px;" behavior="menu" :disable="isTimeDisabled" />
       </div>
 
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
-          Reset Zoom
+          {{ $t('reset_zoom') }}
         </q-btn>
       </div>
       <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
-          Reload
+          {{ $t('reload') }}
         </q-btn>
       </div>
       <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
-          Download
+          {{ $t('download') }}
         </q-btn>
       </div>
     </div>
@@ -59,42 +59,44 @@ import utilities from 'src/utils/utilities.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
 import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
 Chart.register(ChartDataLabels);
 
-const { getRegionalData } = useQuery()
+const { getRegionalData, getAvailableTime } = useQuery()
 const { randomColor } = utilities()
 const { canUserDownload } = userStore()
+const { t } = useI18n()
+
 
 const canDownload = computed(() => canUserDownload())
 const colorDict = ref([])
 const datasets = ref([])
 const chart = ref(null)
 const labels = ref([])
-const yearOptions = ref(['2019-Q1', '2019-Q2', '2019-Q3', '2019-Q4', '2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4', '2022-Q1', '2022-Q2', '2022-Q3'])
+const yearOptions = ref([])
 const yearOption = ref('2020-Q1')
-const graphOptions = ref(['LINIAR', 'BARA'])
-const graphOption = ref('BARA')
-const oxOption = ref('COMPARATIE PE GRUPE VARSTA')
+const graphOptions = computed(() => [t('line_type'), t('bar_type')])
+const graphOption = ref('BARA') //age_level_comparison
+const oxOption = ref(t('age_level_comparison'))
 const residencyOptions = ref(['URBAN', 'RURAL'])
 const residencyOption = ref('URBAN')
 
 
-
 const oxOptions = computed(() => {
-  return graphOption.value == 'LINIAR' ? ['NR. PERSOANE ANGAJATE', 'DIFERENTA MEDIU URBAN - RURAL'] : ['COMPARATIE LA NIVELUL EDUCATIEI', 'COMPARATIE PE GRUPE VARSTA']
+  return graphOption.value == t('line_type') ? [t('number_employed_people'), t('residency_area_difference')] : [t('education_level_comparison'), t('age_level_comparison')]
 })
 const isBarChartSelected = computed(() => {
-  return graphOption.value == 'BARA' ? true : false
+  return graphOption.value == t('bar_type') ? true : false
 })
 const isTimeDisabled = computed(() => {
-  return graphOption.value == 'LINIAR'
+  return graphOption.value == t('line_type')
 })
 
 const isResidencyDisabled = computed(() => {
-  return oxOption.value == 'DIFERENTA MEDIU URBAN - RURAL'
+  return oxOption.value == t('residency_area_difference')
 })
 
 watch(() => oxOptions.value, () => {
@@ -115,10 +117,6 @@ const barChartoptions = ref({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    title: {
-      display: true,
-      text: 'Studiu angajabilitate medii de rezidenta'
-    },
     datalabels: {
       color: 'black',
       anchor: 'start',
@@ -170,10 +168,6 @@ const lineChartOptions = ref({
         }
       }
     },
-    title: {
-      display: true,
-      text: 'Studiu angajabilitate medii de rezidenta'
-    },
     zoom: {
       zoom: {
         wheel: {
@@ -198,6 +192,7 @@ const chartData = computed(() => ({
 }));
 
 onMounted(async () => {
+  yearOptions.value = (await getAvailableTime('residency')).sort()
   for (let i = 0; i < 50; i++) {
     colorDict.value.push('#' + randomColor())
   }
@@ -272,19 +267,19 @@ function gapOx(queryResponse) {
 }
 
 async function fetchData() {
-  if (oxOption.value === 'COMPARATIE LA NIVELUL EDUCATIEI') {
+  if (oxOption.value === t('education_level_comparison')) {
     const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
     educationOx(response)
   }
-  if (oxOption.value === 'COMPARATIE PE GRUPE VARSTA') {
+  if (oxOption.value === t('age_level_comparison')) {
     const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
     ageOx(response)
   }
-  if (oxOption.value === 'NR. PERSOANE ANGAJATE') {
+  if (oxOption.value === t('number_employed_people')) {
     const response = await getRegionalData('', '', 'T', residencyOption.value, 'line')
     timeOx(response)
   }
-  if (oxOption.value === 'DIFERENTA MEDIU URBAN - RURAL') {
+  if (oxOption.value === t('residency_area_difference')) {
     const response = await getRegionalData('', '', 'T', 'GAP', 'line')
     console.log(response)
     gapOx(response)

@@ -9,8 +9,8 @@
         Action completed successfully!
       </q-card-section>
 
-      <q-card-actions class="bg-white text-teal">
-        <q-btn flat label="OK" v-close-popup />
+      <q-card-actions class="bg-white text-teal ">
+        <q-btn class="row col-12" flat label="OK" v-close-popup />
       </q-card-actions>
     </q-card>
   </q-dialog>

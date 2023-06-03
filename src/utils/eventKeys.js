@@ -8,5 +8,7 @@ export const EVENT_KEYS = {
   SUCCESS: 'success',
   CHANGE_REGIONAL_FILTERS: 'changeRegionalFilters',
   CHANGE_EUROPE_FILTERS: 'changeEuropeFilters',
-  EMAIL_CONTENT: 'emailContent'
+  CHANGE_COUNTY_FILTERS: 'changeCountyFilters',
+  EMAIL_CONTENT: 'emailContent',
+  REPLY_DONE: 'replySent'
 }

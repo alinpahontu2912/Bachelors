@@ -27,7 +27,6 @@ import { EVENT_KEYS } from 'src/utils/eventKeys'
 import { userStore } from 'src/stores/userStore';
 import PasswordInput from './PasswordInput.vue';
 import SuccessDialog from './SuccessDialog.vue'
-import useQuery from 'src/compositionFunctions/useQuery';
 import ErrorDialog from './ErrorDialog.vue';
 
 

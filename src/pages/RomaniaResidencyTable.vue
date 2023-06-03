@@ -1,14 +1,15 @@
 <template>
   <div class="fit row q-px-md" @changeFilters="test">
-    <q-table class="col-12 my-sticky-header-table q-pa-md" ref="tableRef" flat bordered title="Rata de angajare pe judete"
+    <q-table class="col-12 my-sticky-header-table q-pa-md" ref="tableRef" flat bordered :title="$t('region_employment')"
       :rows="rows" :columns="columns" row-key="id" :loading="loading" @request="onRequest" binary-state-sort
       :pagination="pagination" separator="cell">
       <template v-slot:top-right>
         <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-btn class="q-pa-md" color="secondary" icon-right="archive" label="Export CSV" no-caps @click="exportTable" />
+          <q-btn class="q-pa-md" color="secondary" icon-right="archive" :label="$t('download')" no-caps
+            @click="exportTable" />
         </div>
         <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-btn class="q-pa-md" color="secondary" label="ALEGE FILTRE" no-caps @click="triggered = !triggered" />
+          <q-btn class="q-pa-md" color="secondary" :label="$t('pick_filters')" no-caps @click="triggered = !triggered" />
         </div>
       </template>
     </q-table>
@@ -16,13 +17,16 @@
   <FilterDialog v-model="triggered" />
 </template>
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, computed } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery'
 import { exportFile } from 'quasar'
 import FilterDialog from 'src/components/FilterDialog.vue'
 import { EVENT_KEYS } from 'src/utils/eventKeys'
+import { useI18n } from 'vue-i18n'
 
 const { getRegionalData } = useQuery()
+const { t } = useI18n()
+
 const bus = inject('bus')
 const queryParams = ref({
   startYear: '',
@@ -33,9 +37,9 @@ const queryParams = ref({
 })
 const triggered = ref(false)
 
-const columns = [{
+const columns = computed(() => [{
   name: 'time',
-  label: 'TRIMESTRU',
+  label: t('year'),
   align: 'center',
   field: row => row.yearQuarter,
   format: val => `${val}`,
@@ -44,7 +48,7 @@ const columns = [{
 {
   name: 'residencyArea',
   required: true,
-  label: 'MEDIU DE REZIDENTA',
+  label: t('residency_area'),
   align: 'center',
   field: row => row.area,
   format: val => `${val}`,
@@ -52,7 +56,7 @@ const columns = [{
 },
 {
   name: 'age',
-  label: 'VARSTA',
+  label: t('age'),
   align: 'center',
   field: row => row.ageNavigation.age,
   format: val => `${val}`,
@@ -60,7 +64,7 @@ const columns = [{
 },
 {
   name: 'education',
-  label: 'NIVELUL EDUCATIEI',
+  label: t('education'),
   align: 'center',
   field: row => row.educationNavigation,
   format: val => `${val.educationLevel}`,
@@ -69,12 +73,12 @@ const columns = [{
 },
 {
   name: 'numberOfPeople',
-  label: 'NUMAR DE PERSOANE',
+  label: t('people'),
   align: 'center',
   field: row => row.val,
   format: val => `${val}`,
   sortable: true
-}]
+}])
 
 const rows = ref([])
 const tableRef = ref()
@@ -132,8 +136,8 @@ function wrapCsvValue(val, formatFn, row) {
 }
 
 function exportTable() {
-  const content = [columns.map(col => wrapCsvValue(col.label))].concat(
-    tableRef.value.filteredSortedRows.map(row => columns.map(col => wrapCsvValue(
+  const content = [columns.value.map(col => wrapCsvValue(col.label))].concat(
+    tableRef.value.filteredSortedRows.map(row => columns.value.map(col => wrapCsvValue(
       typeof col.field === 'function'
         ? col.field(row)
         : row[col.field === void 0 ? col.name : col.field],

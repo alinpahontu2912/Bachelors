@@ -1,31 +1,32 @@
 <template>
-  <div class="fit column" style="padding-top: !important 0">
-    <div class="row q-pa-md content-center align-center justify-center">
+  <div class="fit column" style="padding-top:0px !important;">
+    <div class="row q-px-md content-center align-center justify-center q-py-sm">
       <div class="rowContainer row ">
-        <div class="row col-3 q-pa-md content-center justify-evenly" :class="click ? 'countries' : 'euAverage'">
-          <text class="q-pa-md">LEGENDA</text>
+        <div class="row col-3 q-pa-md content-center justify-evenly" :class="click ? 'countries' : 'euAverage'"
+          style="height: 60px;">
+          <text class="q-px-md">{{ $t('legend') }}</text>
           <q-tooltip class="bg-grey text-body2">
             {{ click ? `${min} - ${max}` : `${min} - ${average} - ${max}` }}
           </q-tooltip>
         </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" filled v-model="yearOption" label="AN" :options="yearOptions" style="width: 250px"
-            behavior="menu" />
-        </div>
-        <div class="row col-1 q-pa-md content-center justify-evenly">
-          <q-select color="teal" filled v-model="sexOption" label="SEX" :options="sexOptions" style="width: 250px"
-            behavior="menu" />
-        </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" filled v-model="ageOption" label="VARSTA" :options="ageOptions" style="width: 250px"
-            behavior="menu" />
-        </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" filled v-model="educationOption" label="EDUCATIE" :options="educatonOptions"
+        <div class="row col-2 q-px-md content-center justify-evenly">
+          <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions"
             style="width: 250px" behavior="menu" />
         </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" filled v-model="compareOption" label="COMPARATIE" :options="compareOptions"
+        <div class="row col-1 q-px-md content-center justify-evenly">
+          <q-select color="teal" filled v-model="sexOption" :label="$t('sex')" :options="sexOptions" style="width: 250px"
+            behavior="menu" />
+        </div>
+        <div class="row col-2 q-px-md content-center justify-evenly">
+          <q-select color="teal" filled v-model="ageOption" :label="$t('age')" :options="ageOptions" style="width: 250px"
+            behavior="menu" />
+        </div>
+        <div class="row col-2 q-px-md content-center justify-evenly">
+          <q-select color="teal" filled v-model="educationOption" :label="$t('education')" :options="educatonOptions"
+            style="width: 250px" behavior="menu" />
+        </div>
+        <div class="row col-2 q-px-md content-center justify-evenly">
+          <q-select color="teal" filled v-model="compareOption" :label="$t('comparison')" :options="compareOptions"
             style="width: 250px" behavior="menu" />
         </div>
       </div>
@@ -35,14 +36,20 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeMount, ref, watch } from 'vue'
+import { onMounted, onBeforeMount, ref, watch, computed } from 'vue'
 import { europeGeoJson } from 'src/assets/EuropeGeoJson'
+import { userStore } from 'src/stores/userStore';
 import utilities from 'src/utils/utilities.js'
-import 'leaflet/dist/leaflet.css'
-import useQuery from 'src/compositionFunctions/useQuery'
 import L from 'leaflet'
 import * as d3 from 'd3'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet-easyprint'
+import useQuery from 'src/compositionFunctions/useQuery'
+
+
 let map = null
+const { canUserDownload } = userStore()
+const canDownload = computed(() => canUserDownload())
 const color = ref(d3.scaleLinear().range(['red', 'green']))
 const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
 const euMoreColor = ref(d3.scaleLinear().range(['white', 'blue']))
@@ -55,8 +62,8 @@ const yearOption = ref('2020-Q4')
 const ageOption = ref('15-24')
 const sexOption = ref('T')
 const educationOption = ref('0-2')
-const compareOptions = ref(['TARA', 'MEDIA UE'])
-const compareOption = ref('TARA')
+const compareOptions = ref(['NORMAL', 'EU AVG'])
+const compareOption = ref('NORMAL')
 const min = ref(100)
 const max = ref(0)
 const average = ref(0)
@@ -93,7 +100,7 @@ onBeforeMount(() => {
 const createMapLayer = () => {
   function getColor(d) {
 
-    if (compareOption.value == 'TARA') {
+    if (compareOption.value == 'NORMAL') {
       return countryValue.value.has(d.NAME) ? color.value(countryValue.value.get(d.NAME)) : 'black'
     } else {
       return !countryValue.value.has(d.NAME) ? 'black' : countryValue.value.get(d.NAME) > average.value ?
@@ -152,13 +159,44 @@ const createMapLayer = () => {
     return countryValue.value.has(layer.feature.properties.NAME) ? layer.feature.properties.NAME + ": " + countryValue.value.get(layer.feature.properties.NAME) : layer.feature.properties.NAME + ': NO DATA'
   }, { permanent: false, opacity: 1 }
   ).addTo(map);
+
+  if (canDownload.value) {
+    L.easyPrint({
+      title: 'PRINT',
+      position: 'topleft',
+      sizeModes: ['A4Landscape'],
+      hideControlContainer: false,
+      hideClasses: ['leaflet-top leaflet-left']
+    }).addTo(map);
+  }
+
+  var legend = L.control({ position: 'bottomright' });
+
+  legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+      grades = click.value ? [min.value, max.value] : [min.value, average.value, max.value],
+      colors = click.value ? [color.value(min.value), color.value(max.value)] : [euLessColor.value(min.value), 'white', euMoreColor.value(max.value)],
+      labels = click.value ? ['MIN', 'MAX'] : ['MIN', 'EU-AVG', 'MAX']
+
+    for (var i = 0; i < grades.length; i++) {
+      div.innerHTML +=
+        '<i class="q-pa-sm" style="width:80px !important; background:' + colors[i] + '"><strong>' + grades[i] + " " + labels[i] + '<strong></i> '
+        + '<br>' + '<br>'
+    }
+
+    return div;
+  };
+
+  legend.addTo(map);
+
 }
 
 async function refresh() {
   const test = await getEuropeanData(yearOption.value, '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'map');
   createDataSets(test)
   map.remove()
-  if (compareOption.value === 'TARA') {
+  if (compareOption.value === 'NORMAL') {
     color.value.range(['red', 'green'])
     click.value = true
   } else {
@@ -190,7 +228,7 @@ watch(() => educationOption.value, () => {
 
 <style scoped>
 #mapContainer {
-  height: 70vh;
+  height: 75vh;
 }
 
 .countries {

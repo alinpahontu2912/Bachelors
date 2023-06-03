@@ -91,7 +91,7 @@ return false;
     const decoded = jwt_decode(userToken.value);
     console.log(decoded)
     const canDownload = decoded.permissions.includes(2)
-    return {email: decoded.email, joinedOn: new Date(decoded.expiry).toDateString(), canDownload: canDownload ? 'YES' : 'NO' }
+    return {email: decoded.email, joinedOn: new Date(decoded.creationTime).toDateString(), canDownload: canDownload ? 'YES' : 'NO' }
   }
 
   function getUserId() {

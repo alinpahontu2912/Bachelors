@@ -1,38 +1,42 @@
 <template>
   <div class="row content-center align-center justify-center q-py-sm" style="padding-top: 0% !important;">
-    <div class='row col-4 q-px-md content-center justify-evenly' :class="click ? 'judete' : 'medieUe'">
-      <text class="q-pa-md">LEGENDA</text>
+    <div class='row col-4 q-px-md content-center justify-evenly' :class="click ? 'judete' : 'medieUe'"
+      style="height: 60px;">
+      <text class="q-pa-md">{{ $t('legend') }}</text>
       <q-tooltip class="bg-grey text-body2">
         {{ click ? `${min} - ${max}` : `${min} - ${euAverage.get(options.yearOption)[options.sexOption]} - ${max}` }}
       </q-tooltip>
     </div>
     <div class="row col-2 q-px-md content-center justify-evenly">
-      <q-select color="teal" filled v-model="options.compareOption" label="COMPARATIE" :options="compareOptions"
+      <q-select color="teal" filled v-model="options.sexOption" :label="$t('sex')" :options="sexOptions"
         style="width: 250px" behavior="menu" />
     </div>
     <div class="row col-2 q-px-md content-center justify-evenly">
-      <q-select color="teal" filled v-model="options.sexOption" label="SEX" :options="sexOptions" style="width: 250px"
-        behavior="menu" />
+      <q-select color="teal" filled v-model="options.yearOption" :label="$t('year')" :options="yearOptions"
+        style="width: 250px" behavior="menu" />
     </div>
     <div class="row col-2 q-px-md content-center justify-evenly">
-      <q-select color="teal" filled v-model="options.yearOption" label="AN" :options="yearOptions" style="width: 250px"
-        behavior="menu" />
+      <q-select color="teal" filled v-model="options.compareOption" :label="$t('comparison')" :options="compareOptions"
+        style="width: 250px" behavior="menu" />
     </div>
   </div>
   <div id="mapContainer" class="row" />
 </template>
 
 <script setup>
-import { onMounted, onBeforeMount, ref, watch } from 'vue'
-import { romaniaGeoJson } from 'src/assets/RomaniaGeojson'
 import 'leaflet/dist/leaflet.css'
 import useQuery from 'src/compositionFunctions/useQuery'
 import L from 'leaflet'
 import 'leaflet-easyprint'
 import * as d3 from 'd3'
 import { euAverage } from 'src/utils/euAverage.js'
-import { euclideanNorm } from '@tensorflow/tfjs'
+import { userStore } from 'src/stores/userStore';
+import { onMounted, onBeforeMount, ref, watch, computed } from 'vue'
+import { romaniaGeoJson } from 'src/assets/RomaniaGeojson'
+
 let map = null
+const { canUserDownload } = userStore()
+const canDownload = computed(() => canUserDownload())
 const color = ref(d3.scaleLinear().range(['red', 'green']))
 const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
 const euMoreColor = ref(d3.scaleLinear().range(['white', 'blue']))
@@ -40,12 +44,12 @@ const regions = ref([])
 const countyValue = ref(new Map())
 const sexOptions = ref(['F', 'M', 'T'])
 const yearOptions = ref([])
-const compareOptions = ref(['JUDETE', 'MEDIA UE'])
+const compareOptions = ref(['NORMAL', 'EU AVG'])
 
 const options = ref({
   sexOption: 'M',
   yearOption: '2021',
-  compareOption: 'JUDETE'
+  compareOption: 'NORMAL'
 })
 
 const click = ref(true)
@@ -54,11 +58,11 @@ const max = ref(0)
 const { getRegionalData, getAvailableTime } = useQuery()
 
 function createDataSets(queryResponse) {
-  regions.value = queryResponse.map(x => x.region)
-  for (let i = 0; i < queryResponse.length; i++) {
-    min.value = queryResponse[i].val < min.value ? queryResponse[i].val : min.value
-    max.value = queryResponse[i].val > max.value ? queryResponse[i].val : max.value
-    countyValue.value.set(queryResponse[i].region, queryResponse[i].val)
+  regions.value = queryResponse[0]
+  for (let i = 0; i < queryResponse[1].length; i++) {
+    min.value = queryResponse[1][i] < min.value ? queryResponse[1][i] : min.value
+    max.value = queryResponse[1][i] > max.value ? queryResponse[1][i] : max.value
+    countyValue.value.set(regions.value[i], queryResponse[1][i])
   }
   color.value.domain([min.value, max.value])
 }
@@ -66,6 +70,7 @@ function createDataSets(queryResponse) {
 onMounted(async () => {
   yearOptions.value = (await getAvailableTime('regional')).sort()
   const response = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
+  console.log(response)
   createDataSets(response)
   createMapLayer()
 })
@@ -77,7 +82,7 @@ onBeforeMount(() => {
 
 const createMapLayer = () => {
   function getColor(d) {
-    if (options.value.compareOption == 'JUDETE') {
+    if (options.value.compareOption == 'NORMAL') {
       return color.value(countyValue.value.get(d.shapeName))
     } else {
       return countyValue.value.get(d.shapeName) > euAverage.get(options.value.yearOption)[options.value.sexOption] ?
@@ -133,32 +138,33 @@ const createMapLayer = () => {
     style: style,
     onEachFeature: onEachFeature
   }).bindTooltip(function (layer) {
-    return layer.feature.properties.shapeName + ": " + countyValue.value.get(layer.feature.properties.shapeName); //merely sets the tooltip text
+    return layer.feature.properties.shapeName + ": " + countyValue.value.get(layer.feature.properties.shapeName);
   }, { permanent: false, opacity: 1 }
   ).addTo(map);
-  L.easyPrint({
-    title: 'My awesome print button',
-    position: 'topleft',
-    sizeModes: ['A4Portrait', 'A4Landscape'],
-    hideControlContainer: false,
-    hideClasses: ['leaflet-top leaflet-left']
 
-  }).addTo(map);
+  if (canDownload.value) {
+    L.easyPrint({
+      title: 'PRINT',
+      position: 'topleft',
+      sizeModes: ['A4Landscape'],
+      hideControlContainer: false,
+      hideClasses: ['leaflet-top leaflet-left']
+    }).addTo(map);
+  }
 
   var legend = L.control({ position: 'bottomright' });
 
-  legend.onAdd = function (map) {
-
+  legend.onAdd = function () {
     var div = L.DomUtil.create('div', 'info legend'),
       grades = click.value ? [min.value, max.value] : [min.value, euAverage.get(options.value.yearOption)[options.value.sexOption], max.value],
-      colors = click.value ? [color.value(min.value), color.value(max.value)] : [euLessColor.value(min.value), 'white', euMoreColor.value(max.value)]
+      colors = click.value ? [color.value(min.value), color.value(max.value)] : [euLessColor.value(min.value), 'white', euMoreColor.value(max.value)],
+      labels = click.value ? ['MIN', 'MAX'] : ['MIN', 'EU-AVG', 'MAX']
 
     for (var i = 0; i < grades.length; i++) {
       div.innerHTML +=
-        '<i class="q-pa-sm" style="background:' + colors[i] + '"><strong>' + grades[i] + '<strong></i> '
+        '<i class="q-pa-sm" style="width:80px !important; background:' + colors[i] + '"><strong>' + grades[i] + " " + labels[i] + '<strong></i> '
         + '<br>' + '<br>'
     }
-
     return div;
   };
 
@@ -179,9 +185,11 @@ watch(() => options.value.compareOption, async () => {
 
 
 async function refresh() {
-  const test = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
-  createDataSets(test)
-  if (options.value.compareOption === 'JUDETE') {
+  min.value = 100
+  max.value = 0
+  const response = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
+  createDataSets(response)
+  if (options.value.compareOption === 'NORMAL') {
     color.value.range(['red', 'green'])
     click.value = true
   } else {
@@ -200,10 +208,7 @@ async function refresh() {
 
   html,
   body {
-
     display: none;
-    /* hide whole page */
-
   }
 
 }

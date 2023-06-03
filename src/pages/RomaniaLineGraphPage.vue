@@ -2,15 +2,15 @@
   <div class="fit column wrap content-center">
     <div class="rowContainer row justify-evenly">
       <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="compareOption" label="EVOLUTIE" :options="compareOptions"
+        <q-select color="teal" filled v-model="compareOption" :label="$t('evolution')" :options="compareOptions"
           style="width: 350px" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">Reset Zoom</q-btn>
+        <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">{{ $t('reset_zoom') }}</q-btn>
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
-          Download
+          {{ $t('download') }}
         </q-btn>
       </div>
     </div>
@@ -32,10 +32,12 @@ import Exporter from "vue-chartjs-exporter";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import utilities from 'src/utils/utilities.js'
 import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
 
 const { randomColor } = utilities()
 const { getRegionalData, getAvailableTime } = useQuery()
 const { canUserDownload } = userStore()
+const { t } = useI18n()
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
@@ -46,9 +48,9 @@ const colorDict = ref([])
 const datasets = ref([])
 const lineChart = ref(null)
 const labels = ref([])
-const compareOptions = ref(['RATA ANGAJARE BARBATI', 'RATA ANGAJARE FEMEI', 'RATA ANGAJARE TOTALA', 'DECALAJ ANGAJARE M-F'])
+const compareOptions = computed(() => [t('men_employment_rate'), t('women_employment_rate'), t('total_employment_rate'), t('sex_difference_employment')])
 const sexOptions = ref(['M', 'F', 'T', 'M-F'])
-const compareOption = ref('RATA ANGAJARE TOTALA')
+const compareOption = ref(t('total_employment_rate'))
 const options = ref({
   layout: {
     padding: {
@@ -58,10 +60,6 @@ const options = ref({
   plugins: {
     responsive: true,
     maintainAspectRatio: false,
-    title: {
-      display: true,
-      text: 'Rata de Angajare pe Judete'
-    },
     datalabels: {
       color: 'black',
       anchor: 'end',

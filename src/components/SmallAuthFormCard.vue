@@ -21,6 +21,6 @@ const props = defineProps({
   title: String,
   middleText: String,
   buttonName: String,
-  function: Object
+  function: Function
 })
 </script>

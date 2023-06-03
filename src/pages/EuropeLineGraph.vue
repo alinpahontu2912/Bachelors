@@ -2,29 +2,30 @@
   <div class="fit column wrap content-center">
     <div class="rowContainer row ">
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="sexOption" label="Sex" :options="sexOptions" style="width: 250px"
+        <q-select color="teal" filled v-model="sexOption" :label="$t('sex')" :options="sexOptions" style="width: 250px"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="ageOption" label="Age" :options="ageOptions" style="width: 250px"
+        <q-select color="teal" filled v-model="ageOption" :label="$t('age')" :options="ageOptions" style="width: 250px"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="educationOption" label="Education" :options="educatonOptions"
+        <q-select color="teal" filled v-model="educationOption" :label="$t('education')" :options="educatonOptions"
           style="width: 250px" behavior="menu" />
       </div>
       <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
-          Reset Zoom
+          {{ $t('reset_zoom') }}
         </q-btn>
       </div>
       <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downlaodAsPdf">
-          Download
+          {{ $t('download') }}
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
+      <div class="row justify-evenly"><strong>{{ $t('employment_rate') }}</strong></div>
       <LineChart id="chart" :chartData="testData" :options="options" ref="lineChart"
         style="width: 90vw; height: 500px;" />
     </div>
@@ -42,6 +43,7 @@ import Exporter from "vue-chartjs-exporter";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import utilities from 'src/utils/utilities.js'
 import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
@@ -50,6 +52,8 @@ Chart.register(ChartDataLabels);
 const { getEuropeanData } = useQuery()
 const { randomColor, getAgeId, getEducationId } = utilities()
 const { canUserDownload } = userStore()
+const { t } = useI18n()
+const { locale } = useI18n({ useScope: 'global' })
 
 const canDownload = computed(() => canUserDownload())
 const sexOptions = ref(['T'])
@@ -61,6 +65,7 @@ const educationOption = ref('0-2')
 const colorDict = ref([])
 const datasets = ref([])
 const lineChart = ref(null)
+
 const options = ref({
   layout: {
     padding: {
@@ -86,10 +91,6 @@ const options = ref({
   plugins: {
     responsive: true,
     maintainAspectRatio: false,
-    title: {
-      display: true,
-      text: 'Employment Rate EU'
-    },
     datalabels: {
       color: 'black',
       anchor: 'end',
@@ -98,7 +99,6 @@ const options = ref({
         return chart.dataset.backgroundColor
       },
       formatter: function (value, context) {
-        console.log(context)
         if (context.dataIndex === context.dataset.data.length - 1) {
           return value.y + " " + context.dataset.label
         } else {
@@ -126,10 +126,14 @@ const options = ref({
     }
   }
 })
+
+
+
 const testData = computed(() => ({
   labels: ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4'],
   datasets: datasets.value
 }));
+
 
 onMounted(async () => {
   for (let i = 0; i < 50; i++) {
@@ -163,7 +167,7 @@ async function fetchData() {
 
 function downlaodAsPdf() {
   const exp = new Exporter([document.getElementById("chart")])
-  exp.export_pdf().then((pdf) => pdf.save("EuEmploymentRate.pdf"));
+  exp.export_pdf().then((pdf) => pdf.save(`EuEmploymentRate${sexOption.value}_${ageOption.value}_${educationOption.value}.pdf`));
 }
 
 watch(() => sexOption.value, () => {

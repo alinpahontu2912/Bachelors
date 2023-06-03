@@ -1,4 +1,18 @@
 export default function() {
+  function getStatusId(statusOption) {
+    switch (statusOption) {
+      case 'ALL':
+        return 0
+      case 'PROCESSING':
+        return 1
+      case 'ACCEPTED':
+        return 2
+      case 'REJECTED':
+        return 3
+    }
+  }
+
+
   function getAgeId(age) {
     switch (age) {
       case '15-24':
@@ -58,6 +72,7 @@ export default function() {
 const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
 
   return {
+    getStatusId,
     getAgeId,
     getEducationId,
     generateYearQuarters,

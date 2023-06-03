@@ -2,33 +2,34 @@
   <div class="fit column wrap content-center">
     <div class="rowContainer row ">
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="yearOption" label="Year Quarter" :options="yearOptions"
-          style="width: 250px" behavior="menu" />
-      </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="sexOption" label="Sex" :options="sexOptions" style="width: 250px"
+        <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions" style="width: 250px"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="ageOption" label="Age" :options="ageOptions" style="width: 250px"
+        <q-select color="teal" filled v-model="sexOption" :label="$t('sex')" :options="sexOptions" style="width: 250px"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="educationOption" label="Education" :options="educatonOptions"
+        <q-select color="teal" filled v-model="ageOption" :label="$t('age')" :options="ageOptions" style="width: 250px"
+          behavior="menu" />
+      </div>
+      <div class="row col-2 q-pa-md content-center justify-evenly">
+        <q-select color="teal" filled v-model="educationOption" :label="$t('education')" :options="educatonOptions"
           style="width: 250px" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
-          Reset Zoom
+          {{ $t('reset_zoom') }}
         </q-btn>
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
-          Download
+          {{ $t('download') }}
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
+      <div class="row justify-evenly"><strong>{{ $t('employment_rate') }}</strong></div>
       <BarChart id="chart" :chartData="testData" :options="options" ref="barChart" style="height: 550px;" />
     </div>
   </div>
@@ -68,6 +69,9 @@ const educationOption = ref('0-2')
 
 const options = ref({
   plugins: {
+    legend: {
+      display: false
+    },
     datalabels: {
       color: 'black',
       anchor: 'start',
@@ -99,8 +103,6 @@ const testData = computed(() => ({
   datasets: datasets.value
 }));
 
-
-
 onMounted(async () => {
   const response = await getEuropeanData(yearOption.value, '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
   labels.value = response[0]
@@ -111,7 +113,7 @@ onMounted(async () => {
 
 function createDataSets(queryResponse) {
   datasets.value.length = 0;
-  datasets.value.push({ data: queryResponse, label: 'Employment rate' })
+  datasets.value.push({ data: queryResponse, label: 'RATA DE ANGAJARE' })
   console.log(datasets.value)
 }
 

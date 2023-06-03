@@ -3,25 +3,25 @@
     <q-header elevated class="bg-teal">
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
-        <q-toolbar-title>MENU</q-toolbar-title>
+        <q-toolbar-title>{{ $t('menu') }}</q-toolbar-title>
         <q-select v-model="locale" :options="localeOptions" :label="$t('language_select')" dense borderless emit-value
           map-options options-dense style="min-width: 100px" />
       </q-toolbar>
     </q-header>
     <q-drawer v-model="drawer" :width="250" :breakpoint="300" overlay bordered class="bg-grey-3">
       <q-scroll-area class="row fit justify-evenly">
-        <q-btn label="Acasa" icon="home" flat style="width: 250px" class="col-12 q-pa-md">
+        <q-btn :label="$t('home')" icon="home" flat style="width: 250px" class="col-12 q-pa-md">
           <router-link exact :to="{ name: 'start' }" class="absolute full-width full-height"></router-link>
         </q-btn>
         <q-separator />
-        <q-btn-dropdown label="Europa" icon="public" flat style="width: 250px" class="col-12 q-pa-md">
+        <q-btn-dropdown :label="$t('europe')" icon="public" flat style="width: 250px" class="col-12 q-pa-md">
           <q-list>
             <q-item v-for="(menuItem, index) in europePages" clickable v-ripple :key="index" :to="{ name: menuItem.to }">
               <q-item-section avatar>
                 <q-icon :name="menuItem.icon" />
               </q-item-section>
               <q-item-section>
-                {{ menuItem.label }}
+                {{ $t(menuItem.label) }}
               </q-item-section>
             </q-item>
           </q-list>
@@ -34,7 +34,7 @@
                 <q-icon :name="menuItem.icon" />
               </q-item-section>
               <q-item-section>
-                {{ menuItem.label }}
+                {{ $t(menuItem.label) }}
               </q-item-section>
             </q-item>
 
@@ -43,13 +43,13 @@
         <q-separator />
         <div v-if="isAdmin">
           <template v-for="(menuItem, index) in adminPages" :key="index">
-            <q-btn :label="menuItem.label" :icon="menuItem.icon" flat :to="{ name: menuItem.to }" style="width: 250px"
+            <q-btn :label="$t(menuItem.label)" :icon="menuItem.icon" flat :to="{ name: menuItem.to }" style="width: 250px"
               class="col-12 q-pa-md">
             </q-btn>
             <q-separator />
           </template>
         </div>
-        <q-btn label="Setari" icon="settings" flat style="width: 250px" class="col-12 q-pa-md">
+        <q-btn :label="$t('settings')" icon="settings" flat style="width: 250px" class="col-12 q-pa-md">
           <router-link exact :to="{ name: 'account_settings' }" class="absolute full-width full-height"></router-link>
         </q-btn>
         <q-separator />
@@ -83,25 +83,25 @@ const isAdmin = computed(() => { return isUserAdmin() })
 const europePages = [
   {
     icon: 'map',
-    label: 'MAP',
+    label: 'map',
     separator: false,
     to: 'europe_map'
   },
   {
     icon: 'bar_chart',
-    label: 'BAR CHART',
+    label: 'bar_chart',
     separator: true,
     to: 'europe_barChart'
   },
   {
     icon: 'show_chart',
-    label: 'LINE CHART',
+    label: 'line_chart',
     separator: false,
     to: 'europe_lineGraph'
   },
   {
     icon: 'table_chart',
-    label: 'TABLE CHART',
+    label: 'table_chart',
     separator: false,
     to: 'europe_table'
   }
@@ -110,37 +110,37 @@ const europePages = [
 const romaniaPages = [
   {
     icon: 'map',
-    label: 'MAP',
+    label: 'map',
     separator: false,
     to: 'romania_map'
   },
   {
     icon: 'bar_chart',
-    label: 'BAR CHART',
+    label: 'bar_chart',
     separator: true,
     to: 'romania_countyBarChart'
   },
   {
     icon: 'show_chart',
-    label: 'LINE CHART',
+    label: 'line_chart',
     separator: false,
     to: 'romania_lineGraph'
   },
   {
     icon: 'data_exploration',
-    label: 'GENERATOR RAPOARTE',
+    label: 'report_generator',
     separator: false,
     to: 'romania_reportGenerator'
   },
   {
     icon: 'table_chart',
-    label: 'TABEL DATE REGIUNI',
+    label: 'county_table_data',
     separator: false,
     to: 'romania_tableCounty'
   },
   {
     icon: 'table_chart',
-    label: 'TABEL DATE REGIUNI',
+    label: 'region_data_table',
     separator: false,
     to: 'romania_tableResidency'
   }
@@ -149,19 +149,19 @@ const romaniaPages = [
 const adminPages = [
   {
     icon: 'person',
-    label: 'Panou Administrator',
+    label: 'admin_panel',
     separator: false,
     to: 'admin'
   },
   {
     icon: 'inbox',
-    label: 'CERERI',
+    label: 'requests_page',
     separator: true,
     to: 'requests'
   },
   {
     icon: 'mail',
-    label: 'MESAJE',
+    label: 'messages_page',
     separator: true,
     to: 'contact'
   },

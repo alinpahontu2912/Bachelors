@@ -29,7 +29,7 @@
               <q-item-section class="col-6">{{ $t('download_permission') }}</q-item-section>
               <q-item-section q-pa-md side class="col-4 row content-right">
                 <q-item-label>{{ userData.canDownload }}<q-tooltip>
-                    For download purposes only</q-tooltip></q-item-label>
+                    ${{ $t('download_purposes') }}</q-tooltip></q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -38,12 +38,12 @@
           <div class="col-12">
             <q-list>
               <q-item class="rowContainer content-center justify-center">
-                <q-item-section class="row content-center align-center col-12">Thank you for being part of this adventure!
+                <q-item-section class="row content-center align-center col-12">{{ $t('thank_you') }}
                 </q-item-section>
               </q-item>
               <q-item class="rowContainer content-center justify-center">
                 <q-item-section>
-                  <q-btn color="white" text-color="black" label="Logout?" @click="triggerLogout" />
+                  <q-btn color="white" text-color="black" :label="$t('logout')" @click="triggerLogout" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -56,14 +56,14 @@
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
                 <h5 v-if="!isAdmin">{{ $t('require_download_permissions') }}</h5>
-                <h5 v-else>Want to see all requests ?</h5>
+                <h5 v-else>{{ $t('see_all_requests') }}</h5>
               </q-item-section>
               <q-item-section side>
                 <q-btn v-if="!isAdmin" color="white text-black" @click="openRequestDialog">
                   {{ $t('make_request') }}
                 </q-btn>
                 <q-btn v-else color="white text-black" @click="goToRequests">
-                  GO TO REQUESTS PAGE
+                  {{ $t('go_to_requests') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -76,14 +76,14 @@
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
                 <h5 v-if="!isAdmin">{{ $t('feedback') }}</h5>
-                <h5 v-else>Reply to messages</h5>
+                <h5 v-else>{{ $t('reply_to_messages') }}</h5>
               </q-item-section>
               <q-item-section side>
                 <q-btn v-if="!isAdmin" color="teal text-white" @click="openFeedbackDialog">
                   {{ $t('leave_comment') }}
                 </q-btn>
                 <q-btn v-else color="teal text-white" @click="goToMessages">
-                  GO TO MESSAGES PAGE
+                  {{ $t('go_to_messages') }}
                 </q-btn>
               </q-item-section>
             </q-item>

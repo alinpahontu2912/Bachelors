@@ -25,17 +25,16 @@
           <div class="row col-12 item-medium  q-pa-md">
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
-                <q-btn class="row col-12" color="green" label="MARK AS READ" @click="sendMessage(message.id, '')" />
+                <q-btn class="row col-12" :disable="message.status == 1" color="green" :label="$t('mark_as_read')"
+                  @click="sendMessage(message.id, '')" />
               </q-item>
               <q-item>
-                <q-btn class="row col-12" color="red" label="REPLY" @click="dialog = !dialog" />
+                <q-btn class="row col-12" color="red" :label="$t('reply')" @click="dialog = !dialog" />
               </q-item>
             </q-list>
           </div>
-
         </q-item-section>
       </q-item>
-
     </q-card>
   </div>
   <ReplyDialog :messageId="message.id" v-model="dialog" />

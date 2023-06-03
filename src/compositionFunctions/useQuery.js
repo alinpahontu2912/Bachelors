@@ -135,6 +135,17 @@ export default function() {
     }
   }
 
+  async function getCountyNames() {
+    try {
+      const response = await axiosInstance.get(endpoint + '/counties')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
   async function getAdminStats(){
     try {
       const response = await axiosInstance.get(endpoint + '/userStats')
@@ -309,6 +320,7 @@ export default function() {
         value
       })
       const data = response.data
+      return response.status
     } catch (error) {
       return null
     }
@@ -333,6 +345,7 @@ export default function() {
     getAllMessages,
     createGetMessagesQuery,
     sendMessage,
-    getCountryNames
+    getCountryNames,
+    getCountyNames
   }
 }

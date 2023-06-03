@@ -6,28 +6,28 @@
       </q-card-section>
       <q-card-section>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select color="teal" outlined v-model="queryParams.startYear" label="START" :options="yearOptions"
+          <q-select color="teal" outlined v-model="queryParams.startYear" :label="$t('start')" :options="yearOptions"
             style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select color="teal" outlined v-model="queryParams.endYear" label="END" :options="yearOptions"
+          <q-select color="teal" outlined v-model="queryParams.endYear" :label="$t('end')" :options="yearOptions"
             style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select color="teal" multiple outlined v-model="queryParams.residencyOption" label="REZIDENTA"
+          <q-select color="teal" multiple outlined v-model="queryParams.residencyOption" :label="$t('residency')"
             :options="residencyOptions" style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select multiple color="teal" outlined v-model="queryParams.ageGroup" label="GRUP VARSTA"
-            :options="ageOptions" style="width: 250px" behavior="menu" clearable />
+          <q-select multiple color="teal" outlined v-model="queryParams.ageGroup" :label="$t('age')" :options="ageOptions"
+            style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select multiple color="teal" outlined v-model="queryParams.educationLevel" label="EDUCATIE"
+          <q-select multiple color="teal" outlined v-model="queryParams.educationLevel" :label="$t('education')"
             :options="educationOptions" style="width: 250px" behavior="menu" clearable />
         </div>
       </q-card-section>
       <q-card-section class="row col-12 justify-evenly content-center">
-        <q-btn v-close-popup class="bg-teal text-white" label="FILTREAZA" @click="sendQueryParams" />
+        <q-btn v-close-popup class="bg-teal text-white" :label="$t('filter_now')" @click="sendQueryParams" />
       </q-card-section>
     </q-card>
   </q-dialog>

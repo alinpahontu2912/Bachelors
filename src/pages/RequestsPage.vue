@@ -1,11 +1,11 @@
 <template>
   <div class="rowContainer row ">
     <div class="row col-4 q-pa-md content-center justify-evenly">
-      <q-select color="teal" filled v-model="dateOption" label="Sort By Date" :options="dateOptions" style="width: 250px"
-        behavior="menu" />
+      <q-select color="teal" filled v-model="dateOption" :label="$t('sort_by_date')" :options="dateOptions"
+        style="width: 250px" behavior="menu" />
     </div>
     <div class="row col-4 q-pa-md content-center justify-evenly">
-      <q-select color="teal" filled v-model="statusOption" label="Sort By Status" :options="statusOptions"
+      <q-select color="teal" filled v-model="statusOption" :label="$t('sort_by_status')" :options="statusOptions"
         style="width: 250px" behavior="menu" />
     </div>
   </div>
@@ -24,8 +24,11 @@
 import RequestTile from 'src/components/RequestTile.vue';
 import { ref, watch } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
+import utilities from 'src/utils/utilities.js'
 
 const { getAllRequests } = useQuery()
+const { getStatusId } = utilities()
+
 const dateOptions = ref(['ASC', 'DESC'])
 const dateOption = ref('DESC')
 const statusOptions = ref(['ALL', 'ACCEPTED', 'REJECTED', 'PROCESSING'])
@@ -33,19 +36,6 @@ const statusOption = ref('ALL')
 const items = ref([])
 const scroll = ref(null)
 const awaitData = ref(false)
-
-function getStatusId() {
-  switch (statusOption.value) {
-    case 'ALL':
-      return 0
-    case 'PROCESSING':
-      return 1
-    case 'ACCEPTED':
-      return 2
-    case 'REJECTED':
-      return 3
-  }
-}
 
 async function reloadData() {
   items.value.length = 0

@@ -35,7 +35,7 @@
   <ErrorDialog />
 </template>
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, computed } from 'vue'
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
 import useQuery from 'src/compositionFunctions/useQuery';
@@ -43,24 +43,25 @@ import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import PasswordInput from 'src/components/PasswordInput.vue';
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 import ErrorDialog from 'src/components/ErrorDialog.vue';
+import { useI18n } from 'vue-i18n';
+
+const { getUserJobs } = useQuery()
+const { signUpRequest } = userStore()
+const { t } = useI18n()
 
 const router = useRouter()
-const { getUserJobs } = useQuery()
 const bus = inject('bus')
 const remainSignedin = ref(true)
 const userJobs = ref([])
-const options = ref([])
+const options = computed(() => userJobs.value.map(x => { return t(x.job) }))
 const signUpData = ref({ email: '', password: '', job: null })
-const { signUpRequest } = userStore()
 
 onMounted(async () => {
   userJobs.value = await getUserJobs()
-  options.value = userJobs.value.map(x => { return x.job })
 })
 
 async function signUp() {
   signUpData.value.job = userJobs.value.find(x => x.job === signUpData.value.job).id
-  console.log(signUpData.value)
   const successfull = await signUpRequest(signUpData.value.email, signUpData.value.password, signUpData.value.job, remainSignedin.value)
   if (successfull) {
     router.push('/start')

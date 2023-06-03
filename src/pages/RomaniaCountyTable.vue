@@ -1,44 +1,45 @@
 <template>
   <div class="fit row q-px-md">
-    <q-table class="col-12 my-sticky-header-table q-pa-md" ref="tableRef" flat bordered title="Rata de angajare pe judete"
-      :rows="rows" :columns="columns" row-key="id" :loading="loading" :filter="filter" @request="onRequest"
-      binary-state-sort :pagination="pagination" separator="cell">
-      <template v-slot:loading>
-        <q-inner-loading showing color="primary" />
-      </template>
+    <q-table class="col-12 my-sticky-header-table q-pa-md" ref="tableRef" flat bordered
+      :title="$t('county_employment_rate')" :rows="rows" :columns="columns" row-key="id" :loading="loading"
+      :filter="filter" @request="onRequest" binary-state-sort :pagination="pagination" separator="cell">
       <template v-slot:top-right>
         <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" outlined v-model="endYear" label="START" :options="yearOptions" style="width: 150px"
-            behavior="menu" clearable />
+          <q-btn class="q-pa-md" color="secondary" icon-right="archive" :label="$t('download')" no-caps
+            @click="exportTable" />
         </div>
         <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" outlined v-model="startYear" label="END" :options="yearOptions" style="width: 150px"
-            behavior="menu" clearable />
+          <q-btn class="q-pa-md" color="secondary" :label="$t('pick_filters')" no-caps @click="triggered = !triggered" />
         </div>
-        <div class="row col-2 q-pa-md content-center justify-evenly">
-          <q-select color="teal" outlined v-model="sexOption" label="Sex" :options="sexOptions" style="width: 150px"
-            behavior="menu" clearable />
-        </div>
-        <q-input class="q-px-md" borderless dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-        <q-btn class="q-px-md" color="secondary" icon-right="archive" label="Export CSV" no-caps @click="exportTable" />
       </template>
     </q-table>
   </div>
+  <CountyFilterDialog v-model="triggered" />
 </template>
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import useQuery from 'src/compositionFunctions/useQuery'
+import { ref, onMounted, inject, computed } from 'vue'
 import { exportFile } from 'quasar'
-const { getRegionalData, getAvailableTime } = useQuery()
+import { EVENT_KEYS } from 'src/utils/eventKeys'
+import useQuery from 'src/compositionFunctions/useQuery'
+import CountyFilterDialog from 'src/components/CountyFilterDialog.vue'
+import { useI18n } from 'vue-i18n'
 
-const columns = [{
+const { getRegionalData } = useQuery()
+const { t } = useI18n()
+
+const bus = inject('bus')
+const triggered = ref(false)
+const queryParams = ref({
+  startYear: '',
+  endYear: '',
+  counties: [],
+  sex: []
+})
+
+const columns = computed(() => [{
   name: 'judet',
   required: true,
-  label: 'JUDET',
+  label: t('county'),
   align: 'center',
   field: row => row.region,
   format: val => `${val}`,
@@ -46,7 +47,7 @@ const columns = [{
 },
 {
   name: 'year',
-  label: 'AN',
+  label: t('year'),
   align: 'center',
   field: row => row.yearQuarter,
   format: val => `${val}`,
@@ -54,7 +55,7 @@ const columns = [{
 },
 {
   name: 'sex',
-  label: 'SEX',
+  label: t('sex'),
   align: 'center',
   field: row => row.sex,
   format: val => `${val}`,
@@ -62,18 +63,13 @@ const columns = [{
 },
 {
   name: 'employment',
-  label: 'RATA ANGAJARE',
+  label: t('employment_rate'),
   align: 'center',
   field: row => row.val,
   format: val => `${val}`,
   sortable: true
-}]
+}])
 
-const yearOptions = ref([])
-const startYear = ref('')
-const endYear = ref('')
-const sexOptions = ref(['M', 'F', 'T'])
-const sexOption = ref('')
 const rows = ref([])
 const filter = ref('')
 const tableRef = ref()
@@ -84,25 +80,30 @@ const pagination = ref({
 
 async function onRequest() {
   loading.value = true
-  rows.value = await getRegionalData(startYear.value, endYear.value, sexOption.value, '', 'table')
+  const response = await getRegionalData(queryParams.value.startYear, queryParams.value.endYear, '', '', 'table')
+  rows.value = filterResults(response)
   loading.value = false
 
 }
 
-watch(() => startYear.value, async () => {
-  rows.value = await getRegionalData(startYear.value, endYear.value, sexOption.value, '', 'table')
+bus.on(EVENT_KEYS.CHANGE_COUNTY_FILTERS, async (data) => {
+  queryParams.value = data
+  await onRequest()
 })
 
-watch(() => endYear.value, async () => {
-  rows.value = await getRegionalData(startYear.value, endYear.value, sexOption.value, '', 'table')
-})
+function filterResults(data) {
+  let filterData = data
+  if (queryParams.value.sex.length != 0) {
+    filterData = filterData.filter(element => queryParams.value.sex.includes(element.sex))
+  }
+  if (queryParams.value.counties.length != 0) {
+    filterData = filterData.filter(element => queryParams.value.counties.includes(element.region))
+  }
 
-watch(() => sexOption.value, async () => {
-  rows.value = await getRegionalData(startYear.value, endYear.value, sexOption.value, '', 'table')
-})
+  return filterData
+}
 
 onMounted(async () => {
-  yearOptions.value = (await getAvailableTime('regional')).sort()
   await tableRef.value.requestServerInteraction()
 })
 
@@ -120,8 +121,8 @@ function wrapCsvValue(val, formatFn, row) {
 }
 
 function exportTable() {
-  const content = [columns.map(col => wrapCsvValue(col.label))].concat(
-    tableRef.value.filteredSortedRows.map(row => columns.map(col => wrapCsvValue(
+  const content = [columns.value.map(col => wrapCsvValue(col.label))].concat(
+    tableRef.value.filteredSortedRows.map(row => columns.value.map(col => wrapCsvValue(
       typeof col.field === 'function'
         ? col.field(row)
         : row[col.field === void 0 ? col.name : col.field],
