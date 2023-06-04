@@ -12,6 +12,18 @@ export default function() {
     }
   }
 
+  function getJobId(statusOption) {
+    switch (statusOption) {
+      case t('Student'):
+        return 1
+      case t('Professor'):
+        return 2
+      case t('Journalist'):
+        return 3
+      case t('Sociologist'):
+        return 4
+    }
+  }
 
   function getAgeId(age) {
     switch (age) {
@@ -67,8 +79,6 @@ export default function() {
     return (result)
   }
 
-
-
 const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
 
   return {
@@ -76,7 +86,8 @@ const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
     getAgeId,
     getEducationId,
     generateYearQuarters,
-    randomColor
+    randomColor,
+    getJobId
   }
 
 }

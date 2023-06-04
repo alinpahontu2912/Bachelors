@@ -16,25 +16,25 @@ export const userStore = defineStore('user', () => {
       const response = await refreshUserToken()
       if (response) {
         userToken.value = response
-        saveUserData(response)
+        saveUserData(response, true)
       }
     } else {
       const response = await loginRequest()
       if (response != null) {
         userToken.value = response
-        saveUserData(response)
+        saveUserData(response, true)
       }
     }
   }
     return userToken.value
-return false;
+
 }
 
   async function signUpRequest(email, password, jobId, remainSignedIn) {
     const response = await createUser(email, password, jobId)
     if (response) {
       userToken.value = response
-      if (remainSignedIn) { saveUserData(response) }
+      saveUserData(response, remainSignedIn)
       return true
     }
     return false
@@ -44,7 +44,7 @@ return false;
     const response = await attemptLogIn(email, password)
     if (response) {
       userToken.value = response
-      if (remainSignedIn) { saveUserData(response) }
+      saveUserData(response, remainSignedIn)
       return true
     }
     return false

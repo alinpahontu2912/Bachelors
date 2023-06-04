@@ -9,7 +9,7 @@
       <q-card-section class="q-pa-md columnContainer justify-center col-12 row">
         <q-input v-model="text" filled type="textarea" class="col-12" @update:model-value="test"
           style="min-width: 300px;" />
-        <q-item>Remaining Characters: {{ characters }}</q-item>
+        <q-item>{{ $t('remaining_characters') }} {{ characters }}</q-item>
         <q-btn color="teal text-white" flat :label='buttonText' class="item-small col-5 q-pa-md" v-close-popup
           @click="sendQuery" />
       </q-card-section>
