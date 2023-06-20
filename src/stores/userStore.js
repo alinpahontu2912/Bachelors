@@ -10,24 +10,31 @@ export const userStore = defineStore('user', () => {
   const userToken = ref(retrieveUserData())
 
   async function checkUserAlreadySignedIn() {
-    if (userToken.value){
+    if (userToken.value) {
     const decoded = jwt_decode(userToken.value);
-    if (Date(decoded.expiry) < new Date()) {
+    if (new Date(decoded.expiry).getTime() <= new Date().getTime()){
       const response = await refreshUserToken()
       if (response) {
         userToken.value = response
-        saveUserData(response)
+        saveUserData(response, true)
+      }
+    } else {
+      const response = await loginRequest()
+      if (response != null) {
+        userToken.value = response
+        saveUserData(response, true)
       }
     }
   }
     return userToken.value
-  }
+
+}
 
   async function signUpRequest(email, password, jobId, remainSignedIn) {
     const response = await createUser(email, password, jobId)
     if (response) {
       userToken.value = response
-      if (remainSignedIn) { saveUserData(response) }
+      saveUserData(response, remainSignedIn)
       return true
     }
     return false
@@ -37,7 +44,7 @@ export const userStore = defineStore('user', () => {
     const response = await attemptLogIn(email, password)
     if (response) {
       userToken.value = response
-      if (remainSignedIn) { saveUserData(response) }
+      saveUserData(response, remainSignedIn)
       return true
     }
     return false
@@ -72,11 +79,18 @@ export const userStore = defineStore('user', () => {
     return false
   }
 
+  function canUserDownload() {
+    if (userToken.value) {
+      const decoded = jwt_decode(userToken.value);
+      return decoded.permissions.includes(2)
+    }
+    return false
+  }
+
   function getAccountInfo() {
     const decoded = jwt_decode(userToken.value);
-    console.log(decoded)
     const canDownload = decoded.permissions.includes(2)
-    return {email: decoded.email, joinedOn: new Date(decoded.expiry).toDateString(), canDownload: canDownload ? 'YES' : 'NO' }
+    return {email: decoded.email, joinedOn: new Date(decoded.creationTime).toDateString(), canDownload: canDownload ? 'YES' : 'NO' }
   }
 
   function getUserId() {
@@ -84,5 +98,5 @@ export const userStore = defineStore('user', () => {
     return decoded.userId
   }
 
-  return { userToken, signUpRequest, loginRequest, logout, checkUserAlreadySignedIn, isUserAuth, isUserAdmin, getAccountInfo, updatePassword, getUserId }
+  return { userToken, signUpRequest, loginRequest, logout, checkUserAlreadySignedIn, isUserAuth, isUserAdmin, getAccountInfo, updatePassword, getUserId, canUserDownload }
 })

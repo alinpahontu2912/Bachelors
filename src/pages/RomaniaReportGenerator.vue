@@ -2,54 +2,54 @@
   <div class="fit column wrap content-center">
     <div class="rowContainer row justify-evenly">
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="graphOption" label="Tip Grafic" :options="graphOptions"
+        <q-select color="teal" filled v-model="graphOption" :label="$t('chart_type')" :options="graphOptions"
           style="width: 250px;" behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="tal" filled v-model="oxOption" label="Axa OX" :options="oxOptions" style="width: 250px;"
+        <q-select color="tal" filled v-model="oxOption" :label="$t('report')" :options="oxOptions" style="width: 250px;"
           behavior="menu" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="residencyOption" label="Mediu de Rezidenta" :options="residencyOptions"
-          style="width: 250px;" behavior="menu" />
+        <q-select color="teal" filled v-model="residencyOption" :label="$t('residency_area')" :options="residencyOptions"
+          style="width: 250px;" behavior="menu" :disable="isResidencyDisabled" />
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-btn-dropdown color="teal" filled label="Extra Filters" behavior="menu">
-          <q-list>
-            <q-item>
-              <q-select color="tal" label="Axa OX" :options="[1, 2, 3, 4, 5]" style="width: 250px;" behavior="menu"
-                multiple />
-            </q-item>
-
-            <q-item>
-              <q-select color="tal" filled v-model="oxOption" label="Axa OX" :options="oxOptions" style="width: 250px;"
-                behavior="menu" />
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </div>
-
-      <div class="row col-2 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="yearOption" label="Trimestru" :options="yearOptions" style="width: 250px;"
-          behavior="menu" :disable="isTimeDisabled" />
+        <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions"
+          style="width: 250px;" behavior="menu" :disable="isTimeDisabled" />
       </div>
 
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
-          Reset Zoom
+          {{ $t('reset_zoom') }}
         </q-btn>
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
-          Reload
+          {{ $t('reload') }}
+        </q-btn>
+      </div>
+      <div class="row col-1 q-pa-md content-center justify-evenly">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+          {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 90vw;"
-        v-if="!isAgeOx" />
-      <BarChart :chartData="chartData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" v-else />
-      <!-- <LineChart :chartData="testData" :options="options" ref="lineChart" style="height: 500px; width: 90vw;" /> -->
+      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="isTimeOx && !isLineDifference" />
+      <LineChart id="chart" :chartData="chartData" :options="lineChartOptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="isTimeOx && isLineDifference" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && !isAgeOx" />
+      <BarChart id="chart" :chartData="chartData" :options="barChartoptions" ref="chart"
+        style="height: 500px; width: 95vw;" v-if="!isTimeOx && isAgeOx" />
+
     </div>
   </div>
 </template>
@@ -61,43 +61,74 @@ import { Chart, registerables } from "chart.js";
 import { computed, ref, onMounted, watch } from 'vue';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
+import utilities from 'src/utils/utilities.js'
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Exporter from "vue-chartjs-exporter";
+import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
+
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
-const { getRegionalData } = useQuery()
+Chart.register(ChartDataLabels);
 
+const { getRegionalData, getAvailableTime } = useQuery()
+const { randomColor } = utilities()
+const { canUserDownload } = userStore()
+const { t } = useI18n()
+
+
+const canDownload = computed(() => canUserDownload())
+const colorDict = ref([])
 const datasets = ref([])
-const barChart = ref(null)
+const chart = ref(null)
 const labels = ref([])
-const yearOptions = ref(['2019-Q1', '2019-Q2', '2019-Q3', '2019-Q4', '2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4'])
+const yearOptions = ref([])
 const yearOption = ref('2020-Q1')
-const graphOptions = ref(['LINIAR', 'BARA'])
-const graphOption = ref('BARA')
-const oxOption = ref('GRUPE VARSTA')
+const graphOptions = computed(() => [t('line_type'), t('bar_type')])
+const graphOption = ref('BARA') //age_level_comparison
+const oxOption = ref(t('age_level_comparison'))
 const residencyOptions = ref(['URBAN', 'RURAL'])
 const residencyOption = ref('URBAN')
+
+
 const oxOptions = computed(() => {
-  return graphOption.value == 'LINIAR' ? ['NIVELUL EDUCATIEI', 'GRUPE VARSTA', 'TIMP'] : ['NIVELUL EDUCATIEI', 'GRUPE VARSTA']
+  return graphOption.value == t('line_type') ? [t('number_employed_people'), t('residency_area_difference')] : [t('education_level_comparison'), t('age_level_comparison')]
 })
 const isBarChartSelected = computed(() => {
-  return graphOption.value == 'BARA' ? true : false
+  return graphOption.value == t('bar_type') ? true : false
 })
 const isTimeDisabled = computed(() => {
-  return graphOption.value == 'LINIAR' && oxOption.value == 'TIMP'
+  return graphOption.value == t('line_type')
+})
+
+const isResidencyDisabled = computed(() => {
+  return oxOption.value == t('residency_area_difference')
+})
+
+watch(() => oxOptions.value, () => {
+  oxOption.value = null
+})
+
+watch(() => graphOption.value, () => {
+  if (graphOption.value == 'LINIAR') {
+    yearOption.value = null
+  }
 })
 
 const isAgeOx = ref(false)
+const isTimeOx = ref(false)
+const isLineDifference = ref(false)
 
-
-watch(graphOption, () => {
-  yearOption.value = null
-  oxOption.value = null
-  residencyOption.value = null
-})
-
-
-
-const options = ref({
+const barChartoptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
   plugins: {
+    datalabels: {
+      color: 'black',
+      anchor: 'start',
+      rotation: '-90',
+      align: 'end',
+    },
     zoom: {
       zoom: {
         wheel: {
@@ -117,32 +148,67 @@ const options = ref({
 
 })
 
+const lineChartOptions = ref({
+  layout: {
+    padding: {
+      left: 180,
+      right: 180
+    }
+  },
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    datalabels: {
+      color: 'black',
+      anchor: 'end',
+      align: 'right',
+      color: chart => {
+        return chart.dataset.backgroundColor
+      },
+      formatter: function (value, context) {
+        if (context.dataIndex === context.dataset.data.length - 1) {
+          return value + " " + context.dataset.label
+        } else {
+          return value
+        }
+      }
+    },
+    zoom: {
+      zoom: {
+        wheel: {
+          enabled: true,
+        },
+        pan: {
+          enabled: true
+        },
+        drag: {
+          enabled: true,
+          mode: 'x'
+        },
+        mode: 'xy',
+      }
+    }
+  },
+})
 
 const chartData = computed(() => ({
   labels: labels.value,
   datasets: datasets.value
 }));
 
-
-
 onMounted(async () => {
-  const test = await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
-  if (graphOption.value === 'BARA' && oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOxBarchart(test)
+  yearOptions.value = (await getAvailableTime('residency')).sort()
+  for (let i = 0; i < 50; i++) {
+    colorDict.value.push('#' + randomColor())
   }
-  if (graphOption.value === 'BARA' && oxOption.value === 'GRUPE VARSTA') {
-    ageOxBarchart(test)
-  }
-  console.log(chartData.value)
+  const test = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+  ageOx(test)
+
 })
 
 
-function educationOxBarchart(queryResponse) {
-  while (labels.value.length) {
-
-    labels.value.pop()
-    console.log(labels.value)
-  }
+function educationOx(queryResponse) {
+  labels.value.length = 0
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))])
   const ageValues = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
@@ -150,15 +216,11 @@ function educationOxBarchart(queryResponse) {
     datasets.value.push({ data: queryResponse.filter(x => x.ageNavigation.age === ageValues[i]).map(x => x.val), label: ageValues[i] })
   }
   isAgeOx.value = false
+  isTimeOx.value = false
 }
 
-function ageOxBarchart(queryResponse) {
-
-  while (labels.value.length) {
-
-    labels.value.pop()
-    console.log(labels.value)
-  }
+function ageOx(queryResponse) {
+  labels.value.length = 0
   datasets.value.length = 0
   labels.value = Array.from([...new Set(queryResponse.map(x => x.ageNavigation.age))])
   const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
@@ -166,21 +228,75 @@ function ageOxBarchart(queryResponse) {
     datasets.value.push({ data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i]).map(x => x.val), label: educationLevels[i] })
   }
   isAgeOx.value = true
+  isTimeOx.value = false
+}
+
+function timeOx(queryResponse) {
+  labels.value.length = 0
+  datasets.value.length = 0
+  labels.value = [...yearOptions.value]
+  const educationLevels = [...new Set(queryResponse.map(x => x.educationNavigation.educationLevel))]
+  const ageGroups = [...new Set(queryResponse.map(x => x.ageNavigation.age))]
+  for (let i = 0; i < educationLevels.length; i++) {
+    for (let j = 0; j < ageGroups.length; j++) {
+      datasets.value.push({
+        data: queryResponse.filter(x => x.educationNavigation.educationLevel === educationLevels[i] && x.ageNavigation.age === ageGroups[j]).map(x => x.val),
+        label: educationLevels[i] + " " + ageGroups[j],
+        hidden: true,
+        backgroundColor: colorDict.value[i * educationLevels.length + j],
+        borderColor: colorDict.value[i * educationLevels.length + j]
+      })
+    }
+  }
+  isTimeOx.value = true
+}
+
+function gapOx(queryResponse) {
+  labels.value.length = 0
+  datasets.value.length = 0
+  labels.value = [...yearOptions.value]
+  const educationLevels = [...new Set(queryResponse.map(x => x.education))]
+  const ageGroups = [...new Set(queryResponse.map(x => x.age))]
+  for (let i = 0; i < educationLevels.length; i++) {
+    for (let j = 0; j < ageGroups.length; j++) {
+      datasets.value.push({
+        data: queryResponse.filter(x => x.education === educationLevels[i] && x.age === ageGroups[j]).map(x => x.value),
+        label: educationLevels[i] + " " + ageGroups[j],
+        hidden: true,
+        backgroundColor: colorDict.value[i * educationLevels.length + j],
+        borderColor: colorDict.value[i * educationLevels.length + j]
+      })
+    }
+  }
+  isTimeOx.value = true
 }
 
 async function fetchData() {
-  const test = await await getRegionalData(yearOption.value, 'T', residencyOption.value, 'barChart');
-  if (graphOption.value === 'BARA' && oxOption.value === 'NIVELUL EDUCATIEI') {
-    educationOxBarchart(test)
+  if (oxOption.value === t('education_level_comparison')) {
+    const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+    educationOx(response)
   }
-  if (graphOption.value === 'BARA' && oxOption.value === 'GRUPE VARSTA') {
-    ageOxBarchart(test)
+  if (oxOption.value === t('age_level_comparison')) {
+    const response = await getRegionalData(yearOption.value, '', 'T', residencyOption.value, 'barChart');
+    ageOx(response)
   }
-  console.log(chartData.value)
+  if (oxOption.value === t('number_employed_people')) {
+    const response = await getRegionalData('', '', 'T', residencyOption.value, 'line')
+    timeOx(response)
+  }
+  if (oxOption.value === t('residency_area_difference')) {
+    const response = await getRegionalData('', '', 'T', 'GAP', 'line')
+    gapOx(response)
+  }
 }
 
 function resetZoom() {
-  barChart.value.chartInstance.resetZoom()
+  chart.value.chartInstance.resetZoom()
+}
+
+function downloadAsPdf() {
+  const exp = new Exporter([document.getElementById("chart")])
+  exp.export_pdf().then((pdf) => pdf.save(`EmployabilityCaseStudy${oxOption.value}_${residencyOption.value}_${yearOption.value}.pdf`));
 }
 
 </script>

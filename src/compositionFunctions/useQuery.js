@@ -1,11 +1,9 @@
-import { EurostatData } from 'src/models/EurostatData'
 import { axiosInstance } from '../boot/axios'
 import { UserJob } from 'src/models/UserJob'
 import { User } from 'src/models/User'
 import { Requests } from 'src/models/Requests'
 import useLocalStorage from './useLocalStorage'
 import { Feedback } from 'src/models/Feedback'
-import { Announcement } from 'src/models/Announcement'
 const { retrieveUserData } = useLocalStorage()
 const endpoint = 'http://localhost:7051/api'
 
@@ -53,6 +51,30 @@ function createGetRequestQuery(sort, status, page) {
   return target.href
 }
 
+function createGetMessagesQuery(sort, status, page) {
+  const target = new URL(endpoint + '/contact')
+  const params = new URLSearchParams()
+  params.set('status', status)
+  params.set('sort', sort)
+  params.set('page', page)
+  target.search = params.toString()
+  return target.href
+}
+
+function createReplyMessageQuery(messageId) {
+  const target = new URL(endpoint + '/contact/' + messageId)
+  const params = new URLSearchParams()
+  target.search = params.toString()
+  return target.href
+}
+
+function createNewAnnouncementQuery(){
+  const target = new URL(endpoint + '/announcements')
+  const params = new URLSearchParams()
+  target.search = params.toString()
+  return target.href
+}
+
 function createGetAnnouncementQuery(sort, type, page) {
   const target = new URL(endpoint + '/announcements')
   const params = new URLSearchParams()
@@ -63,25 +85,43 @@ function createGetAnnouncementQuery(sort, type, page) {
   return target.href
 }
 
-function createEuropeanDataQuery(time, sex, age, education, chartType){
+function createEuropeanDataQuery(startTime, endTime, sex, age, education, chartType){
   const target = new URL(endpoint + '/lfsdata')
   const params = new URLSearchParams()
   params.set('sex', sex)
   params.set('age', age)
   params.set('education', education)
-  params.set('chartType',chartType)
-  params.set('year', time)
+  params.set('chartType', chartType)
+  params.set('startTime', startTime)
+  params.set('endTime', endTime)
   target.search = params.toString()
   return target.href
 }
 
-function createRegionalDataQuery(time, sex, residency, chartType){
+function createSolveRequestQuery(requestId, statusId){
+  const target = new URL(endpoint + '/solveRequest/' + requestId)
+  const params = new URLSearchParams()
+  params.set('status', statusId)
+  target.search = params.toString()
+  return target.href
+}
+
+function createRegionalDataQuery(startTime, endTime, sex, residency, chartType){
   const target = new URL(endpoint + '/regionalData/RO')
   const params = new URLSearchParams()
   params.set('sex', sex)
   params.set('residency', residency)
   params.set('chartType',chartType)
-  params.set('year', time)
+  params.set('startTime', startTime)
+  params.set('endTime', endTime)
+  target.search = params.toString()
+  return target.href
+}
+
+function createGetAvailableTimeQuery(setName) {
+  const target = new URL(endpoint + '/time')
+  const params = new URLSearchParams()
+  params.set('setName', setName)
   target.search = params.toString()
   return target.href
 }
@@ -89,6 +129,27 @@ function createRegionalDataQuery(time, sex, residency, chartType){
 
 export default function() {
 
+  async function getCountryNames() {
+    try {
+      const response = await axiosInstance.get(endpoint + '/countries')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function getCountyNames() {
+    try {
+      const response = await axiosInstance.get(endpoint + '/counties')
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
 
   async function getAdminStats(){
     try {
@@ -112,9 +173,9 @@ export default function() {
     }
   }
 
-  async function getEuropeanData(time, sex, age, education, chartType){
+  async function getAvailableTime(setName) {
     try {
-      const response = await axiosInstance.get(createEuropeanDataQuery(time, sex, age, education, chartType))
+      const response = await axiosInstance.get(createGetAvailableTimeQuery(setName))
       if (response.status === 200) {
         return response.data
       }
@@ -123,9 +184,20 @@ export default function() {
     }
   }
 
-  async function getRegionalData(time, sex, residency, chartType){
+  async function getEuropeanData(startTime, endTime, sex, age, education, chartType){
     try {
-      const response = await axiosInstance.get(createRegionalDataQuery(time, sex, residency, chartType))
+      const response = await axiosInstance.get(createEuropeanDataQuery(startTime == null ? '' : startTime, endTime == null ? '' : endTime, sex == null ? '' : sex, age , education, chartType))
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function getRegionalData(startTime, endTime, sex, residency, chartType){
+    try {
+      const response = await axiosInstance.get(createRegionalDataQuery(startTime == null ? '' : startTime, endTime == null ? '' : endTime, sex == null ? '' : sex, residency, chartType))
       if (response.status === 200) {
         return response.data
       }
@@ -157,7 +229,7 @@ export default function() {
 
   async function refreshUserToken(){
     try {
-      const response = await axiosInstance.get(endpoint + '/refresh')
+      const response = await axiosInstance.get(endpoint + '/users/refresh')
       if (response.status === 200) {
         return response.data
       }
@@ -206,6 +278,28 @@ export default function() {
     done()
     return data.length
   }
+
+  async function getAllMessages(index, sort, type, done, container) {
+    const response = await axiosInstance.get(createGetMessagesQuery(sort, type, index))
+    const data = response.data
+    for (let i = 0; i < data.length; i++) {
+      container.push({ id: data[i].id, requestTime: new Date(data[i].creationTime).toDateString(), value: data[i].value, status: data[i].reply, email: data[i].user.email })
+    }
+    done()
+    return data.length
+  }
+
+  async function postNewAnnouncement(title, type, value, userId){
+    const announcement = {type: type, title: title, value: value, creationTime: new Date(), userId: userId };
+    try {
+      const response = await axiosInstance.post(createNewAnnouncementQuery(), announcement)
+      if (response.status === 200) return true
+      return false
+    } catch (error) {
+      return false
+    }
+  }
+
    async function getAllAnnouncements(index, sort, status, done, container) {
     const response = await axiosInstance.get(createGetAnnouncementQuery(sort, status, index))
     const data = response.data
@@ -226,27 +320,45 @@ export default function() {
     return jobs
   }
 
-  async function testData() {
-     const target = new URL('http://localhost:7051/api/lfsdata')
-    const params = new URLSearchParams()
-    params.set('sex', 'T')
-    params.set('age', '1')
-    params.append('countryCode', 'RO')
-    params.append('countryCode', 'BG')
-    target.search = params.toString()
-    console.log(target.search)
-    const response = await axiosInstance.get(target.href)
-    const data = response.data
-    const eurodata = []
-    for (let i = 0; i < data.length; i++) {
-      eurodata.push(new EurostatData(...Object.values(data[i])))
+
+  async function solveRequest(requestId, statusId) {
+    try {
+      const response = await axiosInstance.put(createSolveRequestQuery(requestId, statusId))
+      if (response.status == 200) return true
+      return false
+    } catch (error) {
+      return false
     }
-    return eurodata
+  }
+
+  async function sendMessage(messageId, value) {
+    try {
+      const response = await axiosInstance.post(createReplyMessageQuery(messageId), {
+        value
+      })
+      const data = response.data
+      return response.status
+    } catch (error) {
+      return null
+    }
+  }
+
+  async function forgotPassword(email) {
+    try {
+      const response = await axiosInstance.post('http://localhost:7051/api/passwordreset', {
+        email
+      })
+      if (response.status == 200) {
+        return true;
+      }
+    } catch (error) {
+      return false
+    }
+    return false
   }
 
   return {
     getUserJobs,
-    testData,
     attemptLogIn,
     createUser,
     refreshUserToken,
@@ -258,6 +370,15 @@ export default function() {
     getEuropeanData,
     getRegionalData,
     getAdminStats,
-    getNewUserStats
+    getNewUserStats,
+    getAvailableTime,
+    solveRequest,
+    getAllMessages,
+    createGetMessagesQuery,
+    sendMessage,
+    getCountryNames,
+    getCountyNames,
+    postNewAnnouncement,
+    forgotPassword
   }
 }

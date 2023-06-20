@@ -1,6 +1,6 @@
 <template>
-  <div class="rowContainer row">
-    <q-card class="col-11" style="height: 600px">
+  <div class="rowContainer row q-pa-md">
+    <q-card class="col-12" style="height: 80vh">
       <q-card-section class="rowContainer row">
         <q-item class="row justify-center space-around col-7" q-pa-sm>
           <q-list bordered separator class="columnContainer row space-around col-12">
@@ -28,10 +28,8 @@
               </q-item-section>
               <q-item-section class="col-6">{{ $t('download_permission') }}</q-item-section>
               <q-item-section q-pa-md side class="col-4 row content-right">
-
                 <q-item-label>{{ userData.canDownload }}<q-tooltip>
-                    For download purposes only</q-tooltip></q-item-label>
-
+                    ${{ $t('download_purposes') }}</q-tooltip></q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -40,28 +38,32 @@
           <div class="col-12">
             <q-list>
               <q-item class="rowContainer content-center justify-center">
-                <q-item-section class="row content-center align-center col-12">Thank you for being part of this adventure!
+                <q-item-section class="row content-center align-center col-12">{{ $t('thank_you') }}
                 </q-item-section>
               </q-item>
               <q-item class="rowContainer content-center justify-center">
                 <q-item-section>
-                  <q-btn color="white" text-color="black" label="Logout?" @click="triggerLogout" />
+                  <q-btn color="white" text-color="black" :label="$t('logout')" @click="triggerLogout" />
                 </q-item-section>
               </q-item>
             </q-list>
           </div>
         </q-item>
       </q-card-section>
-      <q-card-section class="columnContainer row ">
+      <q-card-section class="columnContainer row q-pt-lg">
         <q-item class="col-12" q-pa-sm>
           <q-list bordered separator class="row col-12 bg-secondary text-white">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>{{ $t('require_download_permissions') }}</h5>
+                <h5 v-if="!isAdmin">{{ $t('require_download_permissions') }}</h5>
+                <h5 v-else>{{ $t('see_all_requests') }}</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn color="white text-black" @click="openRequestDialog">
+                <q-btn v-if="!isAdmin" color="white text-black" @click="openRequestDialog">
                   {{ $t('make_request') }}
+                </q-btn>
+                <q-btn v-else color="white text-black" @click="goToRequests">
+                  {{ $t('go_to_requests') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -73,11 +75,15 @@
           <q-list bordered separator class="row col-12">
             <q-item style="height: 80px;" class="col-12">
               <q-item-section class="space-around">
-                <h5>{{ $t('feedback') }}</h5>
+                <h5 v-if="!isAdmin">{{ $t('feedback') }}</h5>
+                <h5 v-else>{{ $t('reply_to_messages') }}</h5>
               </q-item-section>
               <q-item-section side>
-                <q-btn color="teal text-white" @click="openFeedbackDialog">
+                <q-btn v-if="!isAdmin" color="teal text-white" @click="openFeedbackDialog">
                   {{ $t('leave_comment') }}
+                </q-btn>
+                <q-btn v-else color="teal text-white" @click="goToMessages">
+                  {{ $t('go_to_messages') }}
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -101,22 +107,26 @@
         </q-item>
       </q-card-section>
     </q-card>
-    <NewPassworDialog></NewPassworDialog>
+    <NewPassworDialog />
     <TextAreaDialog :title='$t("request_download_permission")' :button-text='$t("send_request")'
       :type='EVENT_KEYS.DATA_DOWNLOAD_REQUEST' />
     <TextAreaDialog :title='$t("what_you_think")' :button-text='$t("send_comment")' :type='EVENT_KEYS.LEAVE_FEEDBACK' />
-
   </div>
+  <ErrorDialog text="failure" />
+  <SuccessDialog text="action_complete" />
 </template>
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, computed } from 'vue'
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 import NewPassworDialog from 'src/components/NewPassworDialog.vue';
 import TextAreaDialog from 'src/components/TextAreaDialog.vue';
-import { EVENT_KEYS } from 'src/utils/eventKeys';
+import ErrorDialog from 'src/components/ErrorDialog.vue';
+import SuccessDialog from 'src/components/SuccessDialog.vue';
 
-const { logout, getAccountInfo } = userStore()
+const { logout, getAccountInfo, isUserAdmin } = userStore()
+const isAdmin = computed(() => { return isUserAdmin() })
 const router = useRouter()
 const bus = inject('bus')
 const userData = ref({})
@@ -135,7 +145,15 @@ function openNewPasswordForm() {
 
 function triggerLogout() {
   logout()
-  router.push('/login')
+  router.push('/')
+}
+
+function goToRequests() {
+  router.push('/solveRequests')
+}
+
+function goToMessages() {
+  router.push('/messages')
 }
 
 onMounted(() => {

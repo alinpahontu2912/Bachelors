@@ -39,7 +39,7 @@ bus.on(EVENT_KEYS.OPEN_ANNOUNCEMENT, (id) => {
     triggered.value = true
 })
 </script>
-<style>
+<style scoped>
 .q-dialog__backdrop {
   backdrop-filter: blur(7px);
 }

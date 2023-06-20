@@ -14,7 +14,7 @@
         </q-item-section>
         <q-item-section
           class="columnContainer col-8 bg-white row item-medium content-center  align-center justify-around">
-          <div class="row col-12 q-pa-md text-bold text-italic">Motivation</div>
+          <div class="row col-12 q-pa-md text-bold text-italic">{{ $t('motivation') }}</div>
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
           flex-direction: column; max-height: 200px;">
             <div class="q-pa-xs">
@@ -26,26 +26,38 @@
           <div class="row col-12 item-medium  q-pa-md">
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
-                <q-btn class="row col-12" color="green">ACCEPT</q-btn>
+                <q-btn :disable="request.status != 1" class="row col-12" color="green" :label="$t('accept')"
+                  @click="sendSolvedRequest(2)" />
               </q-item>
               <q-item>
-                <q-btn class="row col-12" color="red">REJECT</q-btn>
-              </q-item>
-              <q-item>
-                <q-btn class="row col-12" color="grey">CONTACT</q-btn>
+                <q-btn :disable="request.status != 1" class="row col-12" color="red" :label="$t('reject')"
+                  @click="sendSolvedRequest(3)" />
               </q-item>
             </q-list>
           </div>
-
         </q-item-section>
       </q-item>
-
     </q-card>
   </div>
 </template>
 <script setup>
+import useQuery from 'src/compositionFunctions/useQuery';
+import { inject } from 'vue'
+import { EVENT_KEYS } from 'src/utils/eventKeys';
+const { solveRequest } = useQuery();
 const props = defineProps({
   request: Object
 })
+
+const bus = inject('bus')
+async function sendSolvedRequest(response) {
+  const result = await solveRequest(props.request.id, response)
+  if (result) {
+    bus.emit(EVENT_KEYS.SUCCESS, response)
+  }
+  else {
+    bus.emit(EVENT_KEYS.ERROR, response)
+  }
+}
 </script>
 

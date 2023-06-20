@@ -1,23 +1,34 @@
 <template>
   <div class="fit column wrap content-center">
     <div class="rowContainer row justify-evenly">
-      <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="yearOption" label="Year Quarter" :options="yearOptions"
+      <div class="row col-3 q-pa-md content-center justify-evenly">
+        <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions"
           style="width: 250px;" behavior="menu" />
       </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
+        <q-select color="teal" filled v-model="sexOption" :label="$t('sex')" :options="sexOptions" style="width: 250px;"
+          behavior="menu" />
+      </div>
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">
-          Reset Zoom
+          {{ $t('reset_zoom') }}
         </q-btn>
       </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md fit" color="teal" @click="fetchData">
-          Reload
+      <div class="row col-3 q-pa-md content-center justify-evenly">
+        <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+          {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
-      <BarChart :chartData="testData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" />
+      <div class="row justify-evenly"><strong>{{ $t('county_employment_rate') }}</strong></div>
+      <BarChart id="chart" :chartData="testData" :options="options" ref="barChart" style="height: 550px; width: 90vw;" />
     </div>
   </div>
 </template>
@@ -26,23 +37,41 @@
 
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
-import { computed, ref, onMounted, } from 'vue';
+import { computed, ref, onMounted, watch, } from 'vue';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Exporter from "vue-chartjs-exporter";
+import { userStore } from 'src/stores/userStore';
+
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
+Chart.register(ChartDataLabels);
 
-const { getRegionalData } = useQuery()
+const { getRegionalData, getAvailableTime } = useQuery()
+const { canUserDownload } = userStore()
 
-
+const canDownload = computed(() => canUserDownload())
 const datasets = ref([])
 const barChart = ref(null)
 const labels = ref([])
 const yearOptions = ref([])
-const yearOption = ref('2020')
+const sexOptions = ref(['M', 'F', 'T'])
+const yearOption = ref('2021')
+const sexOption = ref('M')
+
 
 const options = ref({
   plugins: {
+    legend: {
+      display: false
+    },
+    datalabels: {
+      color: 'black',
+      anchor: 'start',
+      rotation: '-90',
+      align: 'end'
+    },
     zoom: {
       zoom: {
         wheel: {
@@ -62,40 +91,44 @@ const options = ref({
 
 })
 
-
 const testData = computed(() => ({
   labels: labels.value,
   datasets: datasets.value
 }));
 
-
-
 onMounted(async () => {
-  for (let i = 2010; i <= 2021; i++) {
-    yearOptions.value.push((i).toString())
-  }
-  const test = await getRegionalData('2021', 'T', '', 'barChart');
-  createDataSets(test)
+  yearOptions.value = (await getAvailableTime('regional')).sort()
+  const response = await getRegionalData(yearOption.value, '', sexOption.value, '', 'barChart');
+  labels.value = response[0]
+  createDataSets(response[1])
 })
 
 
 function createDataSets(queryResponse) {
-  let maleValues = queryResponse.filter(x => x.sex == 'M').map(x => x.val)
-  let femaleValues = queryResponse.filter(x => x.sex == 'F').map(x => x.val)
-  labels.value = [...new Set(queryResponse.map(x => x.region))]
   datasets.value.length = 0;
-  datasets.value.push({ data: maleValues, label: 'M' })
-  datasets.value.push({ data: femaleValues, label: 'F' })
-  console.log(testData.value)
+  datasets.value.push({ data: queryResponse })
 }
 
-async function fetchData() {
-  const test = await getRegionalData(yearOption.value, 'T', '', 'barChart');
-  createDataSets(test)
-}
+watch(() => yearOption.value, async () => {
+  const response = await getRegionalData(yearOption.value, '', sexOption.value, '', 'barChart');
+  labels.value = response[0]
+  createDataSets(response[1])
+})
+
+watch(() => sexOption.value, async () => {
+  const response = await getRegionalData(yearOption.value, '', sexOption.value, '', 'barChart');
+  labels.value = response[0]
+  createDataSets(response[1])
+})
+
 
 function resetZoom() {
   barChart.value.chartInstance.resetZoom()
+}
+
+function downloadAsPdf() {
+  const exp = new Exporter([document.getElementById("chart")])
+  exp.export_pdf().then((pdf) => pdf.save(`CountyEmploymentRate_${sexOption.value}_${yearOption.value}.pdf`));
 }
 
 </script>

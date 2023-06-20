@@ -16,11 +16,14 @@
     "@tensorflow/tfjs": "^4.4.0",
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "chartjs-plugin-sort": "^0.1.1",
     "chartjs-plugin-zoom": "^2.0.1",
     "core-js": "^3.6.5",
     "d3": "^7.8.4",
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.9.3",
+    "leaflet-easyprint": "^2.1.9",
+    "leaflet.browser.print": "^2.0.2",
     "pinia": "^2.0.33",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",
@@ -41,7 +44,8 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
     "eslint-webpack-plugin": "^3.1.1",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "quasar-app-extension-qgrid": "^1.0.10"
   },
   "browserslist": [
     "last 10 Chrome versions",
