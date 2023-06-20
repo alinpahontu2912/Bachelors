@@ -31,6 +31,12 @@
       <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>
@@ -160,7 +166,6 @@ const lineChartOptions = ref({
         return chart.dataset.backgroundColor
       },
       formatter: function (value, context) {
-        console.log()
         if (context.dataIndex === context.dataset.data.length - 1) {
           return value + " " + context.dataset.label
         } else {
@@ -281,7 +286,6 @@ async function fetchData() {
   }
   if (oxOption.value === t('residency_area_difference')) {
     const response = await getRegionalData('', '', 'T', 'GAP', 'line')
-    console.log(response)
     gapOx(response)
   }
 }

@@ -14,7 +14,7 @@
             style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">
-          <q-select color="teal" multiple outlined v-model="queryParams.residencyOption" :label="$t('residency')"
+          <q-select color="teal" multiple outlined v-model="queryParams.residencyOption" :label="$t('residency_area')"
             :options="residencyOptions" style="width: 250px" behavior="menu" clearable />
         </div>
         <div class="row col-12 q-pa-md content-center justify-evenly">

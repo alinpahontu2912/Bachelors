@@ -24,8 +24,18 @@
       </div>
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+          <q-icon name="information">
+            <q-tooltip>
+              {{ $t('need_download') }}
+            </q-tooltip>
+          </q-icon>
           {{ $t('download') }}
+          <q-tooltip persistent :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+
         </q-btn>
+
       </div>
     </div>
     <div class="q-pa-md">
@@ -38,12 +48,14 @@
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import { computed, ref, onMounted, watch } from 'vue';
+import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
 import utilities from 'src/utils/utilities.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Exporter from "vue-chartjs-exporter";
-import { userStore } from 'src/stores/userStore';
+
 
 Chart.register(...registerables)
 Chart.register(zoomPlugin)
@@ -53,6 +65,7 @@ const { getEuropeanData } = useQuery()
 const { getAgeId, getEducationId, generateYearQuarters } = utilities()
 const { canUserDownload } = userStore()
 
+const { t } = useI18n()
 const canDownload = computed(() => canUserDownload())
 const datasets = ref([])
 const barChart = ref(null)
@@ -60,12 +73,11 @@ const labels = ref([])
 const sexOptions = ref(['T', 'M', 'F'])
 const sexOption = ref('T')
 const ageOptions = ref(['15-24', '25-54', '55-64'])
-const educatonOptions = ref(['0-2', '3-4', '5-8'])
+const educatonOptions = computed(() => [t('max_sec'), t('max_high'), t('univ')])
 const yearOptions = ref([])
 const yearOption = ref('2020-Q4')
 const ageOption = ref('15-24')
-
-const educationOption = ref('0-2')
+const educationOption = ref(t('max_sec'))
 
 const options = ref({
   plugins: {
@@ -114,7 +126,6 @@ onMounted(async () => {
 function createDataSets(queryResponse) {
   datasets.value.length = 0;
   datasets.value.push({ data: queryResponse, label: 'RATA DE ANGAJARE' })
-  console.log(datasets.value)
 }
 
 async function fetchData() {

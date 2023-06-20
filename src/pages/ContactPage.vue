@@ -19,8 +19,8 @@
       </div>
     </template>
   </q-infinite-scroll>
-  <SuccessDialog />
-  <ErrorDialog />
+  <SuccessDialog text="emailSent" />
+  <ErrorDialog text="emailNotSent" />
 </template>
 <script setup>
 import { ref, watch, inject } from 'vue'
@@ -28,11 +28,8 @@ import MessageTile from 'src/components/MessageTile.vue';
 import useQuery from 'src/compositionFunctions/useQuery';
 import SuccessDialog from 'src/components/SuccessDialog.vue';
 import ErrorDialog from 'src/components/ErrorDialog.vue';
-import { EVENT_KEYS } from 'src/utils/eventKeys';
 
 const { getAllMessages } = useQuery()
-const success = ref(false)
-const error = ref(false)
 const dateOptions = ref(['ASC', 'DESC'])
 const dateOption = ref('DESC')
 const statusOptions = ref(['ALL', 'REPLIED', 'NOT REPLIED'])
@@ -41,7 +38,6 @@ const items = ref([])
 const scroll = ref(null)
 const awaitData = ref(false)
 const bus = inject('bus')
-
 
 function getStatusId() {
   switch (statusOption.value) {
@@ -54,17 +50,16 @@ function getStatusId() {
   }
 }
 
-
 async function onLoad(index, done) {
   const newEntries = await getAllMessages(index, dateOption.value, getStatusId(statusOption.value), done, items.value)
   awaitData.value = newEntries > 0 ? true : false
 }
 
-watch(() => dateOption.value, async () => {
+watch(() => dateOption.value, async (data) => {
   await reloadData();
 })
 
-watch(() => statusOption.value, async () => {
+watch(() => statusOption.value, async (data) => {
   await reloadData();
 })
 
@@ -73,12 +68,6 @@ async function reloadData() {
   scroll.value.reset()
   scroll.value.trigger()
 }
-
-bus.on(EVENT_KEYS.SUCCESS, async (data) => {
-  success.value = true;
-  await reloadData();
-})
-
 </script>
 <style >
 .columnContainer {

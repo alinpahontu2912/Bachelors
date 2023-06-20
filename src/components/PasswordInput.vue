@@ -1,6 +1,7 @@
 <template>
   <q-input :type="isPwd ? 'password' : 'text'" rounded :outlined="outlined" v-model="password" :placeholder="placeholder"
-    class="item-medium q-pa-md col-10" :autocomplete="false" :standout="standout" color="teal">
+    class="item-medium q-pa-md col-10" :autocomplete="false" :standout="standout" color="teal" :rules="rules"
+    :lazy-rules="true">
     <template v-slot:prepend>
       <q-icon :name="icon" />
     </template>
@@ -13,9 +14,7 @@
   </q-input>
 </template>
 <script setup>
-import { ref, defineProps } from 'vue'
-const isPwd = ref(!props.isVisible)
-const password = ref('')
+import { ref } from 'vue'
 
 const props = defineProps({
   placeholder: String,
@@ -23,7 +22,11 @@ const props = defineProps({
   tooltip: String,
   standout: String,
   isVisible: Boolean,
+  rules: Array,
   outlined: { type: Boolean, default: true }
 })
+
+const isPwd = ref(!props.isVisible)
+const password = ref('')
 
 </script>

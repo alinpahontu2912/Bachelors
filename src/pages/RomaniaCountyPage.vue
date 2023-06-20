@@ -17,12 +17,18 @@
       <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>
     <div class="q-pa-md">
       <div class="row justify-evenly"><strong>{{ $t('county_employment_rate') }}</strong></div>
-      <BarChart id="chart" :chartData="testData" :options="options" ref="barChart" style="height: 500px; width: 90vw;" />
+      <BarChart id="chart" :chartData="testData" :options="options" ref="barChart" style="height: 550px; width: 90vw;" />
     </div>
   </div>
 </template>
@@ -92,8 +98,7 @@ const testData = computed(() => ({
 
 onMounted(async () => {
   yearOptions.value = (await getAvailableTime('regional')).sort()
-  const response = await getRegionalData(yearOption.value, '', sexOption.value, '', 'barChart'); //getEuropeanData(yearOption.value, '', sexOption.value, getAgeId(ageOption.value), getEducationId(educationOption.value), 'barChart');
-  console.log(response)
+  const response = await getRegionalData(yearOption.value, '', sexOption.value, '', 'barChart');
   labels.value = response[0]
   createDataSets(response[1])
 })

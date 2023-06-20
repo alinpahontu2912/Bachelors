@@ -75,10 +75,9 @@ const columns = computed(() => [{
   name: 'education',
   label: t('education'),
   align: 'center',
-  field: row => row.educationNavigation,
-  format: val => `${val.educationLevel}`,
+  field: row => row.educationNavigation.educationLevel,
+  format: val => `${val.replace('-', '_')}`,
   sortable: true,
-  sort: (a, b) => a.id - b.id
 },
 {
   name: 'value',
@@ -108,7 +107,6 @@ async function onRequest() {
 function filterResults(data) {
   let filterData = data
 
-  console.log(queryParams.value)
   if (queryParams.value.educationOptions.length != 0) {
     filterData = filterData.filter(element => queryParams.value.educationOptions.includes(element.educationNavigation.educationLevel))
   }

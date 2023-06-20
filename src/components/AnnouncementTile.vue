@@ -9,18 +9,18 @@
           <q-btn flat disabled rounded :text-color="color">{{ announcement.type }}</q-btn>
         </div>
       </q-card-section>
-      <q-card-section class="col-10 row wrap" style="height: 150px; overflow-y: scroll;">
+      <q-card-section class="col-11 row wrap" style="height: 150px; overflow-y: scroll;">
         <div>
           {{ announcement.value }}
         </div>
       </q-card-section>
       <q-card-section class="row justify-center content-center align-center col-12">
-        <div class="text-h7 text-bold col-8 q-pa-md row justify-start">
-          Posted On: {{ announcement.creationTime }}
+        <div class="text-h7 text-bold col-9 q-pa-md row justify-start">
+          {{ $t('posted_on') }} {{ announcement.creationTime }}
         </div>
-        <div class="text-h7 text-bold text-italic col-4 q-pa-md row justify-center">
+        <div class="text-h7 text-bold text-italic col-3 q-pa-md row justify-center">
           <q-btn color="teal" @click="openCard">
-            See More
+            {{ $t('see_more') }}
           </q-btn>
         </div>
       </q-card-section>
@@ -40,14 +40,14 @@ const bus = inject('bus')
 const color = ref('')
 onMounted(() => {
   switch (props.announcement.type) {
-    case 'MAJOR':
+    case 'UPDATE':
       color.value = 'purple-10'
       break;
-    case 'MINOR':
-      color.value = 'primary'
+    case 'MAINTENANCE':
+      color.value = 'deep-orange-14'
       break;
     default:
-      color.value = 'deep-orange-14'
+      color.value = 'black'
   }
 })
 

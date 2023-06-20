@@ -26,15 +26,14 @@ export default route(function ({ /*store , ssrContext */}) {
   Router.beforeEach((to, from, next) => {
   const store = userStore()
 
-  if (to.meta.requiresAuth && !store.isUserAuth()) {
-    next('');
-  } else if ( to.meta.requiresAdmin && !store.isUserAdmin() ) {
-    return false;
-  }
-  else {
-    next();
-  }
-})
+    if (to.meta.requiresAuth && !store.isUserAuth()) {
+      next('');
+    } else if ( to.meta.requiresAdmin && !store.isUserAdmin() ) {
+      return false;
+    }
+    else {
+      next();
+  }})
 
   return Router
 })

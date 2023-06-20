@@ -16,7 +16,6 @@ const yIntercept = (sumY - slope * sumX) / n;
 // Predict the next point in the array
 const nextX = data[data.length - 1].x + 1; // next quarter
 const nextY = slope * nextX + yIntercept;
-  console.log(`The next point is (${nextX}, ${nextY})`);
 
 return nextY
 }

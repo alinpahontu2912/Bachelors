@@ -8,9 +8,10 @@
         <q-card-section class="rowContainer col-12">
           <q-form class="columnContainer item-medium row col-12">
             <PasswordInput :placeholder='$t("email")' icon="mail" :tooltip='$t("email")' v-model="signUpData.email"
-              :isVisible='true' :standout="'bg-secondary text-white'" :outlined=false />
+              :isVisible='true' :standout="'bg-secondary text-white'" :outlined='false' :rules="emailRules" />
             <PasswordInput :placeholder='$t("password")' icon="lock" :tooltip='$t("password")'
-              v-model="signUpData.password" :isVisible='false' :standout="'bg-secondary text-white'" :outlined=false />
+              v-model="signUpData.password" :isVisible='false' :standout="'bg-secondary text-white'" :outlined=false
+              :rules="textRules" />
             <q-select clearable class="q-pa-md col-10 item-medium" standout="bg-teal text-white"
               v-model:model-value="signUpData.job" :options="options" :label="$t('user_job')">
               <template v-slot:prepend>
@@ -19,32 +20,31 @@
             </q-select>
           </q-form>
         </q-card-section>
-        <q-card-section class="rowContainer col-10">
-          <q-form class="rowContainer item-medium col-12">
-            <q-checkbox class="q-pa-md col-4 item-medium" left-label v-model="remainSignedin" :label="$t('remember_me')"
-              checked-icon="task_alt" unchecked-icon="highlight_off" />
-            <q-btn rounded outlined unelevated size="md" class="q-pa-md col-4 item-medium bg-secondary text-white"
-              :label="$t('create_account')" @click="signUp" />
-          </q-form>
+        <q-card-section class="rowContainer row col-12 justify-center">
+          <q-btn rounded outlined unelevated size="md" class="q-pa-md col-6 bg-secondary text-white justify-center"
+            :label="$t('create_account')" @click="signUp" />
         </q-card-section>
       </q-card>
     </div>
     <SmallAuthFormCard :title="'already_have_account'" :middleText="'returning_description'" :buttonName="'go_to_login'"
       :function="routeToLogin" />
   </div>
-  <ErrorDialog />
+  <ErrorDialog text="failure" />
 </template>
 <script setup>
 import { ref, onMounted, inject, computed } from 'vue'
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { EVENT_KEYS } from 'src/utils/eventKeys';
+
 import useQuery from 'src/compositionFunctions/useQuery';
 import SmallAuthFormCard from 'src/components/SmallAuthFormCard.vue';
 import PasswordInput from 'src/components/PasswordInput.vue';
-import { EVENT_KEYS } from 'src/utils/eventKeys';
 import ErrorDialog from 'src/components/ErrorDialog.vue';
-import { useI18n } from 'vue-i18n';
+import useInputRules from 'src/compositionFunctions/useInputRules';
 
+const { textRules, emailRules } = useInputRules()
 const { getUserJobs } = useQuery()
 const { signUpRequest } = userStore()
 const { t } = useI18n()
@@ -61,9 +61,6 @@ onMounted(async () => {
 })
 
 async function signUp() {
-  console.log(signUpData.value.job)
-  console.log(options.value)
-  console.log(options.value.indexOf(signUpData.value.job))
   signUpData.value.job = options.value.indexOf(signUpData.value.job) + 1
 
   const successfull = await signUpRequest(signUpData.value.email, signUpData.value.password, signUpData.value.job, remainSignedin.value)

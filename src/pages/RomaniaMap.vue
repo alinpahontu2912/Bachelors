@@ -70,7 +70,6 @@ function createDataSets(queryResponse) {
 onMounted(async () => {
   yearOptions.value = (await getAvailableTime('regional')).sort()
   const response = await getRegionalData(options.value.yearOption, '', options.value.sexOption, '', 'barChart');
-  console.log(response)
   createDataSets(response)
   createMapLayer()
 })

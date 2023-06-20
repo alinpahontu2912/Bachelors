@@ -107,28 +107,29 @@
         </q-item>
       </q-card-section>
     </q-card>
-    <NewPassworDialog></NewPassworDialog>
+    <NewPassworDialog />
     <TextAreaDialog :title='$t("request_download_permission")' :button-text='$t("send_request")'
       :type='EVENT_KEYS.DATA_DOWNLOAD_REQUEST' />
     <TextAreaDialog :title='$t("what_you_think")' :button-text='$t("send_comment")' :type='EVENT_KEYS.LEAVE_FEEDBACK' />
-
   </div>
+  <ErrorDialog text="failure" />
+  <SuccessDialog text="action_complete" />
 </template>
 <script setup>
 import { ref, inject, onMounted, computed } from 'vue'
 import { userStore } from 'src/stores/userStore';
 import { useRouter } from 'vue-router';
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 import NewPassworDialog from 'src/components/NewPassworDialog.vue';
 import TextAreaDialog from 'src/components/TextAreaDialog.vue';
-import { EVENT_KEYS } from 'src/utils/eventKeys';
-
+import ErrorDialog from 'src/components/ErrorDialog.vue';
+import SuccessDialog from 'src/components/SuccessDialog.vue';
 
 const { logout, getAccountInfo, isUserAdmin } = userStore()
 const isAdmin = computed(() => { return isUserAdmin() })
 const router = useRouter()
 const bus = inject('bus')
 const userData = ref({})
-
 
 function openRequestDialog() {
   bus.emit(EVENT_KEYS.DATA_DOWNLOAD_REQUEST)

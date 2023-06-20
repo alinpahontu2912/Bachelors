@@ -1,4 +1,3 @@
-import { EurostatData } from 'src/models/EurostatData'
 import { axiosInstance } from '../boot/axios'
 import { UserJob } from 'src/models/UserJob'
 import { User } from 'src/models/User'
@@ -69,6 +68,12 @@ function createReplyMessageQuery(messageId) {
   return target.href
 }
 
+function createNewAnnouncementQuery(){
+  const target = new URL(endpoint + '/announcements')
+  const params = new URLSearchParams()
+  target.search = params.toString()
+  return target.href
+}
 
 function createGetAnnouncementQuery(sort, type, page) {
   const target = new URL(endpoint + '/announcements')
@@ -284,6 +289,17 @@ export default function() {
     return data.length
   }
 
+  async function postNewAnnouncement(title, type, value, userId){
+    const announcement = {type: type, title: title, value: value, creationTime: new Date(), userId: userId };
+    try {
+      const response = await axiosInstance.post(createNewAnnouncementQuery(), announcement)
+      if (response.status === 200) return true
+      return false
+    } catch (error) {
+      return false
+    }
+  }
+
    async function getAllAnnouncements(index, sort, status, done, container) {
     const response = await axiosInstance.get(createGetAnnouncementQuery(sort, status, index))
     const data = response.data
@@ -308,9 +324,10 @@ export default function() {
   async function solveRequest(requestId, statusId) {
     try {
       const response = await axiosInstance.put(createSolveRequestQuery(requestId, statusId))
-      const data = response.data
+      if (response.status == 200) return true
+      return false
     } catch (error) {
-      return null
+      return false
     }
   }
 
@@ -324,6 +341,20 @@ export default function() {
     } catch (error) {
       return null
     }
+  }
+
+  async function forgotPassword(email) {
+    try {
+      const response = await axiosInstance.post('http://localhost:7051/api/passwordreset', {
+        email
+      })
+      if (response.status == 200) {
+        return true;
+      }
+    } catch (error) {
+      return false
+    }
+    return false
   }
 
   return {
@@ -346,6 +377,8 @@ export default function() {
     createGetMessagesQuery,
     sendMessage,
     getCountryNames,
-    getCountyNames
+    getCountyNames,
+    postNewAnnouncement,
+    forgotPassword
   }
 }

@@ -17,7 +17,7 @@
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
           flex-direction: column; min-height: 300px; max-height: 300px;">
             <div class="q-pa-xs">
-              {{ message.value }}
+              {{ addNewLine(message.value) }}
             </div>
           </div>
         </q-item-section>
@@ -26,7 +26,7 @@
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
                 <q-btn class="row col-12" :disable="message.status == 1" color="green" :label="$t('mark_as_read')"
-                  @click="sendMessage(message.id, '')" />
+                  @click="markRead()" />
               </q-item>
               <q-item>
                 <q-btn class="row col-12" color="red" :label="$t('reply')" @click="dialog = !dialog" />
@@ -38,19 +38,38 @@
     </q-card>
   </div>
   <ReplyDialog :messageId="message.id" v-model="dialog" />
+  <SuccessDialog text="marked_read" />
+  <ErrorDialog text="not_marked_read" />
 </template>
 <script setup>
 import useQuery from 'src/compositionFunctions/useQuery';
-import { ref } from 'vue'
 import ReplyDialog from './ReplyDialog.vue';
+import SuccessDialog from './SuccessDialog.vue';
+import ErrorDialog from './ErrorDialog.vue';
+import { ref, inject } from 'vue'
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 
 const { sendMessage } = useQuery()
 
-const emailContent = ref('')
 const dialog = ref(false)
+const bus = inject('bus')
 
 const props = defineProps({
   message: Object
 })
+
+async function markRead() {
+  const result = await sendMessage(props.message.id, '')
+  if (result == 200) {
+    bus.emit(EVENT_KEYS.SUCCESS)
+  } else {
+    bus.emit(EVENT_KEYS.ERROR)
+  }
+}
+
+function addNewLine(text) {
+  text = text.replace('RO:', '\nRO:')
+}
+
 </script>
 

@@ -1,4 +1,18 @@
 export default function() {
+  function getAnnouncementType(statusOption) {
+    switch (statusOption) {
+      case 'UPDATE':
+        return 1
+      case 'MAINTENANCE':
+        return 2
+      case 'MENTENANTA':
+        return 2
+      default:
+        return -1
+    }
+  }
+
+
   function getStatusId(statusOption) {
     switch (statusOption) {
       case 'ALL':
@@ -50,11 +64,17 @@ export default function() {
 
   function getEducationId(education) {
     switch (education) {
-      case '0-2':
+      case 'UP TO SECONDARY':
         return 1
-      case '3-4':
+      case 'SECONDARY TO HIGHSCHOOL':
         return 2
-      case '5-8':
+      case 'UNIVERSITY DEGREES':
+        return 3
+      case 'PANA LA GIMNAZIU':
+        return 1
+      case 'INTRE GIMNAZIU SI LICEU':
+        return 2
+      case 'STUDII UNIVERSITARE':
         return 3
       case 'PRIMAR':
         return 4
@@ -87,7 +107,8 @@ const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
     getEducationId,
     generateYearQuarters,
     randomColor,
-    getJobId
+    getJobId,
+    getAnnouncementType
   }
 
 }

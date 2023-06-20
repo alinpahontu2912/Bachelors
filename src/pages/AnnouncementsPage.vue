@@ -1,20 +1,5 @@
 <template>
   <div class="q-pa-md">
-    <div class="rowContainer row ">
-      <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="dateOption" label="Sort By Date" :options="dateOptions"
-          style="width: 250px" behavior="menu" />
-      </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-select color="teal" filled v-model="statusOption" label="Sort By Status" :options="statusOptions"
-          style="width: 250px" behavior="menu" />
-      </div>
-      <div class="row col-4 q-pa-md content-center justify-evenly">
-        <q-btn class="q-pa-md" color="teal" @click="reloadData" :loading="loading">
-          Reload
-        </q-btn>
-      </div>
-    </div>
     <q-infinite-scroll @load="onLoad" :offset="250" ref="scroll">
       <div class="row fit ">
         <AnnouncementTile v-for="(item, index) in items" :key="index" :announcement="item" />
@@ -38,7 +23,7 @@ const loading = ref(false)
 const awaitData = ref(false)
 const dateOptions = ref(['ASC', 'DESC'])
 const dateOption = ref('DESC')
-const statusOptions = ref(['ALL', 'MAJOR', 'MINOR', 'MAINTENANCE'])
+const statusOptions = ref(['ALL', 'UPDATE', 'MAINTENANCE'])
 const statusOption = ref('ALL')
 const scroll = ref(null)
 
@@ -46,12 +31,12 @@ function getTypeId() {
   switch (statusOption.value) {
     case 'ALL':
       return 0
-    case 'MAJOR':
+    case 'UPDATE':
       return 1
-    case 'MINOR':
-      return 2
     case 'MAINTENANCE':
-      return 3
+      return 2
+    case 'MENTENANTA':
+      return 2
   }
 }
 

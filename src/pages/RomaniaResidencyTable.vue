@@ -91,7 +91,6 @@ const pagination = ref({
 
 async function onRequest() {
   loading.value = true
-  console.log(queryParams.value)
   const response = await getRegionalData(queryParams.value.startYear, queryParams.value.endYear, '', queryParams.value.residencyOption, 'table');
   rows.value = filterResults(response)
   loading.value = false

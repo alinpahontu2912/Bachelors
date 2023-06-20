@@ -1,6 +1,6 @@
 <template>
   <div class="col-5 row q-px-md">
-    <q-card class="row bg-secondary justify-center text-white" style="height: 600px">
+    <q-card class="row bg-secondary justify-center text-white" style="height: 80vh">
       <q-card-section class="rowContainer col-12">
         <div class="text-h4 text-bold" style="text-align: center;">{{ $t(title) }}</div>
       </q-card-section>

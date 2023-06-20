@@ -27,26 +27,37 @@
             <q-list class="row content-center justify-center align-center col-12">
               <q-item>
                 <q-btn :disable="request.status != 1" class="row col-12" color="green" :label="$t('accept')"
-                  @click="solveRequest(request.id, 2)" />
+                  @click="sendSolvedRequest(2)" />
               </q-item>
               <q-item>
                 <q-btn :disable="request.status != 1" class="row col-12" color="red" :label="$t('reject')"
-                  @click="solveRequest(request.id, 3)" />
+                  @click="sendSolvedRequest(3)" />
               </q-item>
             </q-list>
           </div>
-
         </q-item-section>
       </q-item>
-
     </q-card>
   </div>
 </template>
 <script setup>
 import useQuery from 'src/compositionFunctions/useQuery';
+import { inject } from 'vue'
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 const { solveRequest } = useQuery();
 const props = defineProps({
   request: Object
 })
+
+const bus = inject('bus')
+async function sendSolvedRequest(response) {
+  const result = await solveRequest(props.request.id, response)
+  if (result) {
+    bus.emit(EVENT_KEYS.SUCCESS, response)
+  }
+  else {
+    bus.emit(EVENT_KEYS.ERROR, response)
+  }
+}
 </script>
 

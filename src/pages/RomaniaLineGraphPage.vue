@@ -11,6 +11,12 @@
       <div class="row col-2 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
           {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>

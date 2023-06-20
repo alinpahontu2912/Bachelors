@@ -15,22 +15,12 @@
       </q-card-section>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="alert">
-    <q-card>
-      <q-card-section>
-        <div class="text-h6">{{ result }}</div>
-      </q-card-section>
-      <q-card-actions>
-        <q-btn flat label="OK" color="secondary" v-close-popup />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
 </template>
 <script setup>
 import { ref, inject } from 'vue'
 import { EVENT_KEYS } from 'src/utils/eventKeys';
-import useQuery from 'src/compositionFunctions/useQuery';
 import { userStore } from 'src/stores/userStore';
+import useQuery from 'src/compositionFunctions/useQuery';
 
 const { getUserId } = userStore()
 const { sendFeedback, createRequest } = useQuery()
@@ -45,8 +35,6 @@ const text = ref('')
 const characters = ref(2000)
 const triggered = ref(false)
 const bus = inject('bus')
-const result = ref('')
-const alert = ref(false)
 
 bus.on(EVENT_KEYS.DATA_DOWNLOAD_REQUEST, () => {
   if (props.type === EVENT_KEYS.DATA_DOWNLOAD_REQUEST)
@@ -65,14 +53,13 @@ function test() {
 async function sendQuery() {
   if (props.type === EVENT_KEYS.LEAVE_FEEDBACK) {
     const data = await sendFeedback(getUserId(), text.value)
-    result.value = data ? 'SUCCESS' : 'SOMWTHING WENT WRONG'
-    alert.value = true
+    if (data) bus.emit(EVENT_KEYS.SUCCESS)
+    else bus.emit(EVENT_KEYS.ERROR)
   }
   if (props.type === EVENT_KEYS.DATA_DOWNLOAD_REQUEST) {
     const data = await createRequest(getUserId(), text.value)
-    console.log(data)
-    result.value = data ? 'SUCCESS' : 'SOMWTHING WENT WRONG'
-    alert.value = true
+    if (data) bus.emit(EVENT_KEYS.SUCCESS)
+    else bus.emit(EVENT_KEYS.ERROR)
   }
 }
 

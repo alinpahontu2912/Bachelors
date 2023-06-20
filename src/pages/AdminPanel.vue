@@ -25,6 +25,9 @@
             <q-item class="col-12 items-center justify-center content-center"><strong>{{ $t('total_messages') }} {{
               stats.totalFeedback
             }} {{ $t('out_of_which') }} {{ stats.unansweredMessages }} {{ $t('unanswered') }}</strong></q-item>
+            <q-item class="col-12 items-center justify-center content-center">
+              <q-btn :label="$t('add_annnc')" @click="newAnnouncement = !newAnnouncement"></q-btn>
+            </q-item>
           </q-list>
         </div>
       </q-card-section>
@@ -36,6 +39,9 @@
       </q-card-section>
     </q-card>
   </div>
+  <AnnouncementDialog v-model="newAnnouncement"></AnnouncementDialog>
+  <SuccessDialog text="ancAdded" />
+  <ErrorDialog text="ancNotAdded" />
 </template>
 <script setup>
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, registerables } from 'chart.js'
@@ -44,12 +50,14 @@ import { BarChart } from 'vue-chart-3';
 import { ref, computed, onMounted } from 'vue';
 import useQuery from 'src/compositionFunctions/useQuery';
 import { useI18n } from 'vue-i18n';
+import AnnouncementDialog from 'src/components/AnnouncementDialog.vue';
+import SuccessDialog from 'src/components/SuccessDialog.vue';
+import ErrorDialog from 'src/components/ErrorDialog.vue';
 
 ChartJS.register(ArcElement, Tooltip, Legend, ...registerables)
 const { getAdminStats, getNewUserStats } = useQuery()
-
 const stats = ref({})
-
+const newAnnouncement = ref(false)
 const jobs = ref([])
 const permissionJobs = ref([])
 const { t } = useI18n()
@@ -117,7 +125,9 @@ function createPieDataSet(data) {
     backgroundColor: [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
-      'rgb(255, 205, 86)'
+      'rgb(255, 205, 86)',
+      'rgb(127, 255, 0)',
+      'rgb(153, 50, 204)'
     ],
   }
 }

@@ -49,6 +49,10 @@
             <q-separator />
           </template>
         </div>
+        <q-btn :label="$t('announcements')" icon="campaign" flat style="width: 250px" class="col-12 q-pa-md">
+          <router-link exact :to="{ name: 'announcements' }" class="absolute full-width full-height"></router-link>
+        </q-btn>
+        <q-separator />
         <q-btn :label="$t('settings')" icon="settings" flat style="width: 250px" class="col-12 q-pa-md">
           <router-link exact :to="{ name: 'account_settings' }" class="absolute full-width full-height"></router-link>
         </q-btn>
@@ -56,7 +60,6 @@
 
       </q-scroll-area>
     </q-drawer>
-
     <q-page-container>
       <q-page-container>
         <router-view />

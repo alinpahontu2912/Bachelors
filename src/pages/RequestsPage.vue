@@ -19,12 +19,17 @@
       </div>
     </template>
   </q-infinite-scroll>
+  <SuccessDialog text="requestSolved" />
+  <ErrorDialog text="requestNotSolved" />
 </template>
 <script setup>
+import ErrorDialog from 'src/components/ErrorDialog.vue';
+import SuccessDialog from 'src/components/SuccessDialog.vue';
 import RequestTile from 'src/components/RequestTile.vue';
-import { ref, watch } from 'vue'
 import useQuery from 'src/compositionFunctions/useQuery';
 import utilities from 'src/utils/utilities.js'
+import { ref, watch, inject } from 'vue'
+import { EVENT_KEYS } from 'src/utils/eventKeys';
 
 const { getAllRequests } = useQuery()
 const { getStatusId } = utilities()
@@ -36,6 +41,7 @@ const statusOption = ref('ALL')
 const items = ref([])
 const scroll = ref(null)
 const awaitData = ref(false)
+const bus = inject('bus')
 
 async function reloadData() {
   items.value.length = 0
@@ -51,6 +57,13 @@ watch(() => statusOption.value, async () => {
   await reloadData();
 })
 
+bus.on(EVENT_KEYS.SUCCESS, async (data) => {
+  await reloadData();
+})
+
+bus.on(EVENT_KEYS.ERROR, async (data) => {
+  await reloadData();
+})
 
 async function onLoad(index, done) {
   const newEntries = await getAllRequests(index, dateOption.value, getStatusId(statusOption.value), done, items.value)

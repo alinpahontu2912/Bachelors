@@ -25,7 +25,6 @@ const props = defineProps({
   messageId: Number
 })
 
-
 const text = ref('')
 const characters = ref(2000)
 const bus = inject('bus')
@@ -35,9 +34,7 @@ function countCharacters() {
   characters.value = 2000 - text.value.length
 }
 
-
 async function sendMail() {
-  console.log(props.messageId)
   const response = await sendMessage(props.messageId, text.value)
   if (response != null) {
     bus.emit(EVENT_KEYS.SUCCESS, response)

@@ -21,6 +21,12 @@
       <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downlaodAsPdf">
           {{ $t('download') }}
+          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+            {{ $t('can_download') }}
+          </q-tooltip>
+          <q-tooltip v-else :offset="[10, 10]">
+            {{ $t('need_download') }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>
@@ -37,13 +43,14 @@
 import { LineChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import { computed, ref, onMounted, watch } from 'vue';
+import { userStore } from 'src/stores/userStore';
+import { useI18n } from 'vue-i18n';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import useQuery from 'src/compositionFunctions/useQuery';
 import Exporter from "vue-chartjs-exporter";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import utilities from 'src/utils/utilities.js'
-import { userStore } from 'src/stores/userStore';
-import { useI18n } from 'vue-i18n';
+
 
 Chart.register(...registerables);
 Chart.register(zoomPlugin);
@@ -52,14 +59,15 @@ Chart.register(ChartDataLabels);
 const { getEuropeanData } = useQuery()
 const { randomColor, getAgeId, getEducationId } = utilities()
 const { canUserDownload } = userStore()
+const { t } = useI18n();
 
 const canDownload = computed(() => canUserDownload())
 const sexOptions = ref(['T', 'M', 'F'])
 const ageOptions = ref(['15-24', '25-54', '55-64'])
-const educatonOptions = ref(['0-2', '3-4', '5-8'])
+const educatonOptions = computed(() => [t('max_sec'), t('max_high'), t('univ')])
 const ageOption = ref('15-24')
 const sexOption = ref('T')
-const educationOption = ref('0-2')
+const educationOption = ref(t('max_sec'))
 const colorDict = ref([])
 const datasets = ref([])
 const lineChart = ref(null)
@@ -125,13 +133,10 @@ const options = ref({
   }
 })
 
-
-
 const testData = computed(() => ({
   labels: ['2020-Q1', '2020-Q2', '2020-Q3', '2020-Q4'],
   datasets: datasets.value
 }));
-
 
 onMounted(async () => {
   for (let i = 0; i < 50; i++) {
@@ -165,7 +170,7 @@ async function fetchData() {
 
 function downlaodAsPdf() {
   const exp = new Exporter([document.getElementById("chart")])
-  exp.export_pdf().then((pdf) => pdf.save(`EuEmploymentRate${sexOption.value}_${ageOption.value}_${educationOption.value}.pdf`));
+  exp.export_pdf().then((pdf) => pdf.save(`Eu${sexOption.value}_${ageOption.value}_${educationOption.value}.pdf`));
 }
 
 watch(() => sexOption.value, () => {

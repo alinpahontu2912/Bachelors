@@ -45,10 +45,12 @@ import * as d3 from 'd3'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-easyprint'
 import useQuery from 'src/compositionFunctions/useQuery'
+import { useI18n } from 'vue-i18n';
 
 
 let map = null
 const { canUserDownload } = userStore()
+const { t } = useI18n()
 const canDownload = computed(() => canUserDownload())
 const color = ref(d3.scaleLinear().range(['red', 'green']))
 const euLessColor = ref(d3.scaleLinear().range(['red', 'white']))
@@ -56,12 +58,12 @@ const euMoreColor = ref(d3.scaleLinear().range(['white', 'blue']))
 const countryValue = ref(null)
 const sexOptions = ref(['T', 'M', 'F'])
 const ageOptions = ref(['15-24', '25-54', '55-64'])
-const educatonOptions = ref(['0-2', '3-4', '5-8'])
+const educatonOptions = computed(() => [t('max_sec'), t('max_high'), t('univ')])
 const yearOptions = ref(['2020-Q4', '2020-Q3', '2020-Q2', '2020-Q1'])
 const yearOption = ref('2020-Q4')
 const ageOption = ref('15-24')
 const sexOption = ref('T')
-const educationOption = ref('0-2')
+const educationOption = ref(t('max_sec'))
 const compareOptions = ref(['NORMAL', 'EU AVG'])
 const compareOption = ref('NORMAL')
 const min = ref(100)
