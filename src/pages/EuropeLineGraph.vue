@@ -20,12 +20,14 @@
       </div>
       <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downlaodAsPdf">
+          <q-icon name="information" v-if="!canDownload">
+            <q-tooltip>
+              {{ $t('need_download') }}
+            </q-tooltip>
+          </q-icon>
           {{ $t('download') }}
-          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+          <q-tooltip persistent :offset="[10, 10]">
             {{ $t('can_download') }}
-          </q-tooltip>
-          <q-tooltip v-else :offset="[10, 10]">
-            {{ $t('need_download') }}
           </q-tooltip>
         </q-btn>
       </div>

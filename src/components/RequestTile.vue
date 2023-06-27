@@ -52,6 +52,7 @@ const props = defineProps({
 const bus = inject('bus')
 async function sendSolvedRequest(response) {
   const result = await solveRequest(props.request.id, response)
+  console.log(result)
   if (result) {
     bus.emit(EVENT_KEYS.SUCCESS, response)
   }

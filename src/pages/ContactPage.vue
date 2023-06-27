@@ -19,8 +19,8 @@
       </div>
     </template>
   </q-infinite-scroll>
-  <SuccessDialog text="emailSent" />
-  <ErrorDialog text="emailNotSent" />
+  <SuccessDialog text="messageSolved" />
+  <ErrorDialog text="messageNotSolved" />
 </template>
 <script setup>
 import { ref, watch, inject } from 'vue'
@@ -52,6 +52,7 @@ function getStatusId() {
 
 async function onLoad(index, done) {
   const newEntries = await getAllMessages(index, dateOption.value, getStatusId(statusOption.value), done, items.value)
+  console.log(newEntries)
   awaitData.value = newEntries > 0 ? true : false
 }
 

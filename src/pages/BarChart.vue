@@ -5,7 +5,7 @@
         <q-select color="teal" filled v-model="yearOption" :label="$t('year')" :options="yearOptions" style="width: 250px"
           behavior="menu" />
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-1 q-pa-md content-center justify-evenly">
         <q-select color="teal" filled v-model="sexOption" :label="$t('sex')" :options="sexOptions" style="width: 250px"
           behavior="menu" />
       </div>
@@ -22,9 +22,9 @@
           {{ $t('reset_zoom') }}
         </q-btn>
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
-          <q-icon name="information">
+          <q-icon name="information" v-if="!canDownload">
             <q-tooltip>
               {{ $t('need_download') }}
             </q-tooltip>
@@ -33,7 +33,6 @@
           <q-tooltip persistent :offset="[10, 10]">
             {{ $t('can_download') }}
           </q-tooltip>
-
         </q-btn>
 
       </div>

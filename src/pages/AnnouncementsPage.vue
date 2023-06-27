@@ -19,11 +19,8 @@ import useQuery from 'src/compositionFunctions/useQuery';
 
 const { getAllAnnouncements } = useQuery()
 const items = ref([])
-const loading = ref(false)
 const awaitData = ref(false)
-const dateOptions = ref(['ASC', 'DESC'])
 const dateOption = ref('DESC')
-const statusOptions = ref(['ALL', 'UPDATE', 'MAINTENANCE'])
 const statusOption = ref('ALL')
 const scroll = ref(null)
 
@@ -45,10 +42,5 @@ async function onLoad(index, done) {
   awaitData.value = newEntries > 0 ? true : false
 }
 
-async function reloadData() {
-  items.value.length = 0
-  scroll.value.reset()
-  scroll.value.trigger()
-}
 
 </script>

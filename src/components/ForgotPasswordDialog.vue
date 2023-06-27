@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="triggered">
+  <q-dialog>
     <q-card class="row">
       <q-card-section class="rowContainer q-pb-none col-12">
         <div class="text-h6">{{ $t('input_email') }}</div>
@@ -25,8 +25,6 @@ import { EVENT_KEYS } from 'src/utils/eventKeys'
 
 const { forgotPassword } = useQuery()
 const email = ref('')
-const success = ref(false)
-const error = ref(false)
 const bus = inject('bus')
 
 async function sendRequest() {

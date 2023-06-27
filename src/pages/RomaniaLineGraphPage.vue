@@ -5,17 +5,19 @@
         <q-select color="teal" filled v-model="compareOption" :label="$t('evolution')" :options="compareOptions"
           style="width: 350px" behavior="menu" />
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn class="q-pa-md fit" color="teal" @click="resetZoom">{{ $t('reset_zoom') }}</q-btn>
       </div>
-      <div class="row col-2 q-pa-md content-center justify-evenly">
+      <div class="row col-3 q-pa-md content-center justify-evenly">
         <q-btn :disable="!canDownload" class="q-pa-md fit" color="teal" @click="downloadAsPdf">
+          <q-icon name="information" v-if="!canDownload">
+            <q-tooltip>
+              {{ $t('need_download') }}
+            </q-tooltip>
+          </q-icon>
           {{ $t('download') }}
-          <q-tooltip v-if="canUserDownload" :offset="[10, 10]">
+          <q-tooltip persistent :offset="[10, 10]">
             {{ $t('can_download') }}
-          </q-tooltip>
-          <q-tooltip v-else :offset="[10, 10]">
-            {{ $t('need_download') }}
           </q-tooltip>
         </q-btn>
       </div>

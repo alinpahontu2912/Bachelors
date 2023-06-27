@@ -24,12 +24,11 @@
   </q-dialog>
 </template>
 <script setup>
-import { Announcement } from 'src/models/Announcement';
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 import { ref, inject, defineProps } from 'vue'
 
 const props = defineProps({
-  announcement: Announcement
+  announcement: Object
 })
 
 const bus = inject('bus')

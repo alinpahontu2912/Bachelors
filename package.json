@@ -14,6 +14,7 @@
     "@quasar/cli": "^2.0.0",
     "@quasar/extras": "^1.0.0",
     "@tensorflow/tfjs": "^4.4.0",
+    "axios": "^1.4.0",
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-sort": "^0.1.1",

@@ -11,7 +11,7 @@
       </q-card-section>
       <q-card-section class="col-11 row wrap" style="height: 150px; overflow-y: scroll;">
         <div>
-          {{ announcement.value }}
+          {{ (announcement.value) }}
         </div>
       </q-card-section>
       <q-card-section class="row justify-center content-center align-center col-12">
@@ -30,11 +30,10 @@
 </template>
 <script setup>
 import { ref, onMounted, inject } from 'vue'
-import { Announcement } from 'src/models/Announcement.js'
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 import AnnouncementCard from './AnnouncementCard.vue';
 const props = defineProps({
-  announcement: Announcement
+  announcement: Object
 })
 const bus = inject('bus')
 const color = ref('')
@@ -54,5 +53,6 @@ onMounted(() => {
 function openCard() {
   bus.emit(EVENT_KEYS.OPEN_ANNOUNCEMENT, props.announcement.id)
 }
+
 
 </script>

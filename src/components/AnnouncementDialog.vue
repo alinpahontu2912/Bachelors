@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="triggered">
+  <q-dialog>
     <q-card class="row">
       <q-card-section class="rowContainer q-pb-none col-12">
         <div class="text-h6">{{ title }}</div>
@@ -37,8 +37,6 @@ const { getAnnouncementType } = utilities()
 const { postNewAnnouncement } = useQuery()
 const { getUserId } = userStore()
 const characters = ref(2000)
-const success = ref(false)
-const error = ref(false)
 const announcement = ref({
   announcementTitle: '',
   announcementValue: '',

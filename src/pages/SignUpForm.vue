@@ -1,7 +1,7 @@
 <template>
   <div class="rowContainer row space-around">
     <div class="col-7 row q-px-md">
-      <q-card class="row" style="height: 600px">
+      <q-card class="row" style="height: 80vh">
         <q-card-section class="rowContainer col-12">
           <div class="text-h4 text-bold ">{{ $t('signUp_title') }}</div>
         </q-card-section>

@@ -17,7 +17,7 @@
           <div class="row col-12 q-pa-md fit nowrap" style="overflow-y: scroll; display: flex;
           flex-direction: column; min-height: 300px; max-height: 300px;">
             <div class="q-pa-xs">
-              {{ addNewLine(message.value) }}
+              {{ message.value }}
             </div>
           </div>
         </q-item-section>
@@ -38,14 +38,10 @@
     </q-card>
   </div>
   <ReplyDialog :messageId="message.id" v-model="dialog" />
-  <SuccessDialog text="marked_read" />
-  <ErrorDialog text="not_marked_read" />
 </template>
 <script setup>
 import useQuery from 'src/compositionFunctions/useQuery';
 import ReplyDialog from './ReplyDialog.vue';
-import SuccessDialog from './SuccessDialog.vue';
-import ErrorDialog from './ErrorDialog.vue';
 import { ref, inject } from 'vue'
 import { EVENT_KEYS } from 'src/utils/eventKeys';
 
@@ -65,10 +61,6 @@ async function markRead() {
   } else {
     bus.emit(EVENT_KEYS.ERROR)
   }
-}
-
-function addNewLine(text) {
-  text = text.replace('RO:', '\nRO:')
 }
 
 </script>
